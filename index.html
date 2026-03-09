@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Input Nilai Geografi</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1f2d45;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --gold: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(6,182,212,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .globe-bg {
+    position: fixed;
+    top: 50%;
+    right: -10%;
+    transform: translateY(-50%);
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    border: 1px solid rgba(59,130,246,0.08);
+    box-shadow: 0 0 80px rgba(59,130,246,0.05), inset 0 0 80px rgba(59,130,246,0.03);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  .globe-bg::before {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    border-radius: 50%;
+    border: 1px solid rgba(6,182,212,0.06);
+  }
+
+  .page { position: relative; z-index: 1; }
+
+  /* ======= LOGIN ======= */
+  #login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+    animation: slideUp 0.6s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .logo-area {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .logo-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 8px 24px rgba(59,130,246,0.3);
+  }
+
+  .logo-area h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    background: linear-gradient(135deg, #e2e8f0, var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.3rem;
+  }
+
+  .logo-area p {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    outline: none;
+  }
+
+  input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  }
+
+  select option { background: var(--surface2); }
+
+  .btn {
+    width: 100%;
+    padding: 0.9rem;
+    border: none;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.35);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(59,130,246,0.45);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  .error-msg {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+    color: #fca5a5;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  /* ======= MAIN APP ======= */
+  #app-page { display: none; min-height: 100vh; }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .topbar-brand .icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .topbar-brand h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .topbar-brand p { font-size: 0.75rem; color: var(--muted); }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .user-badge {
+    text-align: right;
+  }
+
+  .user-badge .name { font-size: 0.9rem; font-weight: 600; }
+  .user-badge .nisn { font-size: 0.75rem; color: var(--muted); }
+
+  .avatar {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, #7c3aed, #db2777);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .logout-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+  .main-content {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    margin-bottom: 0.4rem;
+    background: linear-gradient(135deg, var(--text), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .page-header p { color: var(--muted); font-size: 0.9rem; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: var(--accent2);
+    border-radius: 2px;
+  }
+
+  /* Grade type toggle */
+  .grade-toggle {
+    display: flex;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: 1.5rem;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .toggle-btn.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(59,130,246,0.3);
+  }
+
+  /* Grade row */
+  .grade-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: end;
+  }
+
+  .grade-display {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+    transition: all 0.3s;
+  }
+
+  .grade-display.filled {
+    border-color: var(--green);
+    color: var(--text);
+  }
+
+  .grade-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 32px;
+    padding: 0 0.5rem;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 1rem;
+    background: linear-gradient(135deg, var(--green), #059669);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+  }
+
+  .criteria-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-top: 0.5rem;
+  }
+
+  .criteria-table th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    color: var(--muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .criteria-table td {
+    padding: 0.4rem 0.75rem;
+    border-bottom: 1px solid rgba(31,45,69,0.5);
+    color: var(--text);
+  }
+
+  .criteria-table tr:last-child td { border-bottom: none; }
+
+  .criteria-table tr.highlight td {
+    background: rgba(59,130,246,0.08);
+    color: var(--accent2);
+    font-weight: 700;
+  }
+
+  .letter-pill {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+
+  /* Photo upload */
+  .photo-upload {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .photo-upload:hover { border-color: var(--accent); background: rgba(59,130,246,0.03); }
+  .photo-upload.has-file { border-color: var(--green); border-style: solid; }
+
+  .photo-upload input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+  .upload-text { font-size: 0.85rem; color: var(--muted); }
+  .upload-text strong { color: var(--accent); }
+
+  .photo-preview {
+    display: none;
+    margin-top: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .photo-preview img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .photo-name {
+    font-size: 0.8rem;
+    color: var(--green);
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  /* Submit */
+  .submit-area { margin-top: 0.5rem; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.3);
+    letter-spacing: 0.03em;
+  }
+
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(59,130,246,0.4); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Success modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    display: none;
+    padding: 1rem;
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .success-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--green), #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 8px 24px rgba(16,185,129,0.4);
+  }
+
+  .modal h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+  .modal p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+  .modal-detail {
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+
+  .modal-detail .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+    font-size: 0.85rem;
+  }
+  .modal-detail .row span:first-child { color: var(--muted); }
+  .modal-detail .row span:last-child { font-weight: 600; }
+
+  .criteria-toggle {
+    font-size: 0.78rem;
+    color: var(--accent2);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    margin-top: 0.5rem;
+    display: inline-block;
+  }
+
+  .criteria-wrap { display: none; margin-top: 1rem; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* Data table */
+  .data-section { margin-top: 2rem; }
+
+  .data-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .data-header h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .count-badge {
+    background: rgba(59,130,246,0.15);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 20px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .btn-download {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    border-radius: 8px;
+    padding: 0.55rem 1rem;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(16,185,129,0.3);
+  }
+  .btn-download:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(16,185,129,0.4); }
+  .btn-download:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    min-width: 640px;
+  }
+
+  .data-table thead tr {
+    background: var(--surface2);
+  }
+
+  .data-table th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .data-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(31,45,69,0.5);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .data-table tbody tr:last-child td { border-bottom: none; }
+  .data-table tbody tr:hover { background: rgba(59,130,246,0.04); }
+
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .empty-state .empty-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+
+  .bukti-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .bukti-thumb:hover { transform: scale(1.1); }
+
+  .no-bukti { color: var(--muted); font-size: 0.75rem; }
+
+  @media (max-width: 480px) {
+    .login-card { padding: 2rem; }
+    .main-content { padding: 1.5rem 1rem; }
+    .grade-row { grid-template-columns: 1fr; }
+    .topbar { padding: 0.75rem 1rem; }
+    .user-badge .name { font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="globe-bg"></div>
+
+<!-- LOGIN PAGE -->
+<div id="login-page" class="page">
+  <div class="login-card">
+    <div class="logo-area">
+      <div class="logo-icon">🌍</div>
+      <h1>Geografi</h1>
+      <p>Sistem Input Nilai · Kelas X</p>
+    </div>
+    <div class="error-msg" id="login-error">NISN tidak ditemukan. Silakan coba lagi.</div>
+    <div class="form-group">
+      <label>NISN Siswa</label>
+      <input type="text" id="nisn-input" placeholder="Masukkan NISN Anda..." maxlength="15"
+             onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Masuk →</button>
+  </div>
+</div>
+
+<!-- APP PAGE -->
+<div id="app-page" class="page">
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <div class="icon">🌍</div>
+      <div>
+        <h2>Input Nilai Geografi</h2>
+        <p id="topbar-kelas">Kelas X · Semester Aktif</p>
+      </div>
+    </div>
+    <div class="user-info">
+      <div class="user-badge">
+        <div class="name" id="user-name">—</div>
+        <div class="nisn" id="user-nisn">—</div>
+      </div>
+      <div class="avatar" id="user-avatar">?</div>
+      <button class="logout-btn" onclick="doLogout()">Keluar</button>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <div class="page-header">
+      <h3>Input Nilai</h3>
+      <p>Silakan lengkapi formulir nilai Geografi di bawah ini</p>
+    </div>
+
+    <!-- Bentuk Tugas -->
+    <div class="card">
+      <div class="card-title">Bentuk Tugas</div>
+      <div id="kelas-badge" style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.25);border-radius:6px;padding:0.3rem 0.75rem;font-size:0.78rem;font-weight:600;color:var(--accent2);margin-bottom:1rem;">
+        <span>📚</span><span id="kelas-label">—</span>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <select id="bentuk-tugas">
+          <option value="">— Pilih Bentuk Tugas —</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Input Nilai -->
+    <div class="card">
+      <div class="card-title">Nilai</div>
+
+      <div class="grade-toggle">
+        <button class="toggle-btn active" id="btn-angka" onclick="setMode('angka')">🔢 Nilai Angka</button>
+        <button class="toggle-btn" id="btn-huruf" onclick="setMode('huruf')">🔤 Nilai Huruf</button>
+      </div>
+
+      <div class="grade-row">
+        <!-- Angka -->
+        <div class="form-group" style="margin:0">
+          <label>Nilai Angka <span style="color:var(--accent2)">(0–100)</span></label>
+          <input type="number" id="nilai-angka" min="0" max="100" placeholder="Contoh: 85"
+                 oninput="onAngkaChange()" style="font-size:1.1rem; font-weight:700">
+        </div>
+        <!-- Huruf -->
+        <div class="form-group" style="margin:0">
+          <label>Nilai Huruf</label>
+          <div class="grade-display" id="huruf-display">
+            <span style="font-size:0.8rem">— otomatis terisi —</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Huruf mode: select huruf, show angka range -->
+      <div id="huruf-input-wrap" style="display:none; margin-top:1rem;">
+        <div class="grade-row">
+          <div class="form-group" style="margin:0">
+            <label>Nilai Huruf</label>
+            <select id="nilai-huruf-select" onchange="onHurufChange()">
+              <option value="">— Pilih Huruf —</option>
+              <option value="A++">A++ (100)</option>
+              <option value="A+">A+ (98)</option>
+              <option value="A">A (95)</option>
+              <option value="A-">A- (90)</option>
+              <option value="B+">B+ (88)</option>
+              <option value="B">B (85)</option>
+              <option value="B-">B- (81)</option>
+              <option value="C+">C+ (79)</option>
+              <option value="C">C (75)</option>
+              <option value="C-">C- (70)</option>
+              <option value="D">D (65)</option>
+              <option value="E">E (&lt;50)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Nilai Angka</label>
+            <div class="grade-display" id="angka-display">
+              <span style="font-size:0.8rem">— otomatis terisi —</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Criteria reference -->
+      <span class="criteria-toggle" onclick="toggleCriteria()">📊 Lihat tabel kriteria penilaian</span>
+      <div class="criteria-wrap" id="criteria-wrap">
+        <table class="criteria-table">
+          <thead>
+            <tr><th>Huruf</th><th>Angka</th><th>Keterangan</th></tr>
+          </thead>
+          <tbody id="criteria-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Foto Bukti -->
+    <div class="card">
+      <div class="card-title">Foto Bukti</div>
+      <div class="photo-upload" id="photo-upload-area">
+        <input type="file" id="foto-input" accept="image/*" onchange="onPhotoChange()">
+        <div class="upload-icon">📷</div>
+        <div class="upload-text">
+          <strong>Klik untuk upload</strong> atau seret foto ke sini<br>
+          <small>JPG, PNG, WEBP · Maks. 10MB</small>
+        </div>
+        <div class="photo-name" id="photo-name"></div>
+        <div class="photo-preview" id="photo-preview">
+          <img id="preview-img" src="" alt="Preview">
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-area">
+      <button class="btn-submit" onclick="doSubmit()">Kirim Nilai ✓</button>
+    </div>
+
+    <!-- Data Rekap -->
+    <div class="data-section">
+      <div class="card" style="padding:1.5rem">
+        <div class="data-header">
+          <h4>📋 Rekap Data Nilai <span class="count-badge" id="data-count">0</span></h4>
+          <button class="btn-download" id="btn-download" onclick="downloadExcel()" disabled>
+            ⬇ Unduh Excel (.xlsx)
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>NISN</th>
+                <th>Nama</th>
+                <th>Kelas</th>
+                <th>Bentuk Tugas</th>
+                <th>Nilai Angka</th>
+                <th>Nilai Huruf</th>
+                <th>Bukti</th>
+              </tr>
+            </thead>
+            <tbody id="data-tbody">
+              <tr>
+                <td colspan="8">
+                  <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    Belum ada data yang diinput
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <!-- Loading state -->
+    <div id="modal-loading" style="display:none; text-align:center">
+      <div style="font-size:2.5rem; margin-bottom:1rem; animation:spin 1s linear infinite; display:inline-block">⏳</div>
+      <h3 style="margin-bottom:0.5rem">Mengirim Data...</h3>
+      <p style="color:var(--muted)">Sedang menyimpan ke Google Sheets</p>
+    </div>
+    <!-- Success state -->
+    <div id="modal-success" style="display:none">
+      <div class="success-icon">✓</div>
+      <h3>Nilai Berhasil Dikirim!</h3>
+      <p>Data tersimpan di Google Sheets.</p>
+      <div class="modal-detail" id="modal-detail"></div>
+      <a id="sheet-link" href="https://docs.google.com/spreadsheets/d/1JUA5B5hWPOKi3r9RMs3sLYQGs-xINwZq7tPyjLVgz5Y/edit" target="_blank"
+         style="display:inline-block;margin-bottom:1rem;font-size:0.82rem;color:var(--accent2);text-decoration:underline;text-underline-offset:3px">
+        🔗 Lihat Google Sheets
+      </a><br>
+      <button class="btn btn-primary" onclick="closeModal()" style="margin-top:0">Kembali ke Form</button>
+    </div>
+    <!-- Error state -->
+    <div id="modal-error" style="display:none; text-align:center">
+      <div style="font-size:2.5rem; margin-bottom:1rem">⚠️</div>
+      <h3 style="margin-bottom:0.5rem; color:#fca5a5">Gagal Mengirim</h3>
+      <p style="color:var(--muted); margin-bottom:0.75rem" id="modal-error-msg">Terjadi kesalahan koneksi.</p>
+      <p style="font-size:0.78rem; color:var(--muted); margin-bottom:1.25rem">
+        Pastikan URL Apps Script sudah diisi dengan benar di variabel <code style="background:var(--surface2);padding:0.1rem 0.3rem;border-radius:3px">APPS_SCRIPT_URL</code>.
+      </p>
+      <div style="display:flex;gap:0.75rem">
+        <button class="btn" onclick="closeModal()" style="flex:1;background:var(--surface2);color:var(--muted);border:1px solid var(--border)">Tutup</button>
+        <button class="btn btn-primary" onclick="retrySend()" style="flex:1">Coba Lagi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA SISWA =====
+const SISWA = [
+  { nisn: "0097758369", nama: "AIRA PUTRI OKTAVIANI", kelas: "X 1" },
+  { nisn: "0097931054", nama: "AIRISH BILAL NABAWI", kelas: "X 1" },
+  { nisn: "0093693520", nama: "ALDHO JUNADIL ILHAM", kelas: "X 1" },
+  { nisn: "0103307505", nama: "ALICIA PUTRI DEVINIRA", kelas: "X 1" },
+  { nisn: "0102108205", nama: "ANNISA NUR SYIFA", kelas: "X 1" },
+  { nisn: "0102371225", nama: "ARYA BHIMA SUTANARENDRA HADIUSODO", kelas: "X 1" },
+  { nisn: "0094238385", nama: "AYRA DIAH AGNESA", kelas: "X 1" },
+  { nisn: "0105461165", nama: "AZHAR HIDAYAT DHARMA ATMOKO", kelas: "X 1" },
+  { nisn: "0097206174", nama: "CAHYA KAMILA", kelas: "X 1" },
+  { nisn: "0095735226", nama: "CARISSA ARUNI WIDYADHANA", kelas: "X 1" },
+  { nisn: "0101727711", nama: "CHESTA KAYNA MOZABI", kelas: "X 1" },
+  { nisn: "0099748269", nama: "DIKA PERMANA", kelas: "X 1" },
+  { nisn: "0098744140", nama: "FANIA RAHMALIA", kelas: "X 1" },
+];
+
+// ===== KRITERIA NILAI =====
+const KRITERIA = [
+  { huruf: "A++", angka: 100, min: 100, max: 100, color: "#10b981" },
+  { huruf: "A+",  angka: 98,  min: 98,  max: 99,  color: "#10b981" },
+  { huruf: "A",   angka: 95,  min: 95,  max: 97,  color: "#10b981" },
+  { huruf: "A-",  angka: 90,  min: 90,  max: 94,  color: "#34d399" },
+  { huruf: "B+",  angka: 88,  min: 88,  max: 89,  color: "#3b82f6" },
+  { huruf: "B",   angka: 85,  min: 85,  max: 87,  color: "#3b82f6" },
+  { huruf: "B-",  angka: 81,  min: 81,  max: 84,  color: "#60a5fa" },
+  { huruf: "C+",  angka: 79,  min: 79,  max: 80,  color: "#f59e0b" },
+  { huruf: "C",   angka: 75,  min: 75,  max: 78,  color: "#f59e0b" },
+  { huruf: "C-",  angka: 70,  min: 70,  max: 74,  color: "#fbbf24" },
+  { huruf: "D",   angka: 65,  min: 65,  max: 69,  color: "#f97316" },
+  { huruf: "E",   angka: 0,   min: 0,   max: 49,  color: "#ef4444" },
+];
+
+const HURUF_TO_ANGKA = {
+  "A++": 100, "A+": 98, "A": 95, "A-": 90,
+  "B+": 88, "B": 85, "B-": 81,
+  "C+": 79, "C": 75, "C-": 70,
+  "D": 65, "E": 0
+};
+
+// ===== TUGAS PER KELAS =====
+const TUGAS_PER_KELAS = {
+  "X": [
+    { value: "Tugas 1 - Catatan Dinamika Litosfer",   label: "Tugas 1 · Catatan Dinamika Litosfer" },
+    { value: "Tugas 2 - Contoh Akibat Tektonisme",    label: "Tugas 2 · Contoh Akibat Tektonisme" },
+    { value: "Tugas 3 - Sumatif Harian 1 Litosfer",   label: "Tugas 3 · Sumatif Harian 1 Litosfer" },
+  ],
+  "XII": [
+    { value: "Tugas 1 - Catatan Kerjasama Antarnegara",          label: "Tugas 1 · Catatan Kerjasama Antarnegara" },
+    { value: "Tugas 2 - Sumatif Paradigma Kerjasama",            label: "Tugas 2 · Sumatif Paradigma Kerjasama" },
+    { value: "Tugas 3 - Slide PPT Bentuk Kerjasama Antarnegara", label: "Tugas 3 · Slide PPT Bentuk Kerjasama Antarnegara" },
+  ],
+};
+
+function getKelasGroup(kelas) {
+  // e.g. "X 1" → "X", "XII 3" → "XII"
+  const m = kelas.trim().match(/^(XII|XI|X|IX|VIII|VII)/i);
+  return m ? m[1].toUpperCase() : null;
+}
+
+function populateTugas(kelas) {
+  const group = getKelasGroup(kelas);
+  const select = document.getElementById('bentuk-tugas');
+  select.innerHTML = '<option value="">— Pilih Bentuk Tugas —</option>';
+  const list = TUGAS_PER_KELAS[group] || [];
+  list.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.value;
+    opt.textContent = t.label;
+    select.appendChild(opt);
+  });
+  // Update kelas badge
+  document.getElementById('kelas-label').textContent = 'Kelas ' + kelas;
+  document.getElementById('topbar-kelas').textContent = 'Kelas ' + kelas + ' · Semester Aktif';
+}
+
+// ===== KONFIGURASI — isi URL Apps Script setelah deploy =====
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4oTAHY9Vlxfpqm2O0y2UZzo7zSz-1zz3jZkD23WzAuu9Tc623nozRSLRxNc55e20/exec';
+
+let currentUser = null;
+let inputMode = 'angka';
+let nilaiDB = []; // in-memory data store
+let pendingPhotoBase64 = null; // stores photo as base64 for table preview
+
+// ===== BUILD CRITERIA TABLE =====
+function buildCriteria() {
+  const tbody = document.getElementById('criteria-tbody');
+  tbody.innerHTML = KRITERIA.map(k => `
+    <tr>
+      <td><span class="letter-pill" style="background:${k.color}22;color:${k.color}">${k.huruf}</span></td>
+      <td style="font-weight:600">${k.angka}</td>
+      <td style="color:var(--muted);font-size:0.78rem">${k.huruf==='E' ? '< 50' : k.min===k.max ? k.min : k.min+'–'+k.max}</td>
+    </tr>
+  `).join('');
+}
+
+function toggleCriteria() {
+  const wrap = document.getElementById('criteria-wrap');
+  wrap.style.display = wrap.style.display === 'block' ? 'none' : 'block';
+}
+
+// ===== LOGIN =====
+function doLogin() {
+  const nisn = document.getElementById('nisn-input').value.trim();
+  const errEl = document.getElementById('login-error');
+  const found = SISWA.find(s => s.nisn === nisn);
+  if (!found) {
+    errEl.style.display = 'block';
+    document.getElementById('nisn-input').style.borderColor = 'var(--red)';
+    return;
+  }
+  errEl.style.display = 'none';
+  currentUser = found;
+  showApp();
+}
+
+function showApp() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app-page').style.display = 'block';
+  document.getElementById('user-name').textContent = currentUser.nama;
+  document.getElementById('user-nisn').textContent = 'NISN: ' + currentUser.nisn;
+  document.getElementById('user-avatar').textContent = currentUser.nama.charAt(0);
+  populateTugas(currentUser.kelas);
+  resetForm();
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('app-page').style.display = 'none';
+  document.getElementById('nisn-input').value = '';
+  document.getElementById('nisn-input').style.borderColor = '';
+}
+
+// ===== MODE TOGGLE =====
+function setMode(mode) {
+  inputMode = mode;
+  document.getElementById('btn-angka').classList.toggle('active', mode === 'angka');
+  document.getElementById('btn-huruf').classList.toggle('active', mode === 'huruf');
+
+  const angkaInput = document.getElementById('nilai-angka').parentElement;
+  const hurufRow = document.getElementById('huruf-input-wrap');
+  const hurufDisplay = document.getElementById('huruf-display');
+
+  if (mode === 'angka') {
+    angkaInput.style.display = '';
+    hurufRow.style.display = 'none';
+    // Show huruf display next to angka input
+    document.querySelector('.grade-row').style.display = 'grid';
+    hurufDisplay.parentElement.style.display = '';
+    document.getElementById('nilai-angka').value = '';
+    setHurufDisplay('', '');
+  } else {
+    angkaInput.style.display = 'none';
+    hurufDisplay.parentElement.style.display = 'none';
+    document.querySelector('.grade-row').style.display = 'none';
+    hurufRow.style.display = 'block';
+    document.getElementById('nilai-huruf-select').value = '';
+    setAngkaDisplay('');
+  }
+}
+
+function getHuruf(angka) {
+  const v = parseInt(angka);
+  if (isNaN(v)) return null;
+  if (v === 100) return "A++";
+  if (v >= 98) return "A+";
+  if (v >= 95) return "A";
+  if (v >= 90) return "A-";
+  if (v >= 88) return "B+";
+  if (v >= 85) return "B";
+  if (v >= 81) return "B-";
+  if (v >= 79) return "C+";
+  if (v >= 75) return "C";
+  if (v >= 70) return "C-";
+  if (v >= 65) return "D";
+  if (v < 50) return "E";
+  return null;
+}
+
+function getColor(huruf) {
+  const k = KRITERIA.find(x => x.huruf === huruf);
+  return k ? k.color : '#64748b';
+}
+
+function setHurufDisplay(huruf, color) {
+  const el = document.getElementById('huruf-display');
+  if (!huruf) {
+    el.innerHTML = '<span style="font-size:0.8rem">— otomatis terisi —</span>';
+    el.className = 'grade-display';
+  } else {
+    el.innerHTML = `<span class="grade-badge" style="background:linear-gradient(135deg,${color},${color}bb)">${huruf}</span>`;
+    el.className = 'grade-display filled';
+  }
+}
+
+function setAngkaDisplay(angka) {
+  const el = document.getElementById('angka-display');
+  if (!angka && angka !== 0) {
+    el.innerHTML = '<span style="font-size:0.8rem">— otomatis terisi —</span>';
+    el.className = 'grade-display';
+  } else {
+    el.innerHTML = `<span class="grade-badge" style="font-size:1.1rem">${angka}</span>`;
+    el.className = 'grade-display filled';
+  }
+}
+
+function onAngkaChange() {
+  const v = parseInt(document.getElementById('nilai-angka').value);
+  if (!isNaN(v) && v >= 0 && v <= 100) {
+    const h = getHuruf(v);
+    if (h) {
+      setHurufDisplay(h, getColor(h));
+    } else {
+      setHurufDisplay('', '');
+    }
+  } else {
+    setHurufDisplay('', '');
+  }
+}
+
+function onHurufChange() {
+  const h = document.getElementById('nilai-huruf-select').value;
+  if (h) {
+    const a = HURUF_TO_ANGKA[h];
+    setAngkaDisplay(a !== undefined ? a : '—');
+  } else {
+    setAngkaDisplay('');
+  }
+}
+
+// ===== PHOTO =====
+function onPhotoChange() {
+  const file = document.getElementById('foto-input').files[0];
+  const area = document.getElementById('photo-upload-area');
+  const nameEl = document.getElementById('photo-name');
+  const previewEl = document.getElementById('photo-preview');
+  const imgEl = document.getElementById('preview-img');
+
+  if (file) {
+    area.classList.add('has-file');
+    nameEl.textContent = '✓ ' + file.name;
+    nameEl.style.display = 'block';
+    const reader = new FileReader();
+    reader.onload = e => {
+      imgEl.src = e.target.result;
+      previewEl.style.display = 'block';
+      pendingPhotoBase64 = e.target.result; // store for table preview
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// ===== SUBMIT =====
+let pendingEntry = null; // keeps last entry for retry
+
+function doSubmit() {
+  const bentuk = document.getElementById('bentuk-tugas').value;
+  if (!bentuk) { alert('Silakan pilih Bentuk Tugas terlebih dahulu.'); return; }
+
+  let nilaiAngka, nilaiHuruf;
+  if (inputMode === 'angka') {
+    const rawAngka = document.getElementById('nilai-angka').value;
+    nilaiAngka = parseInt(rawAngka);
+    if (isNaN(nilaiAngka) || nilaiAngka < 0 || nilaiAngka > 100) {
+      alert('Masukkan nilai angka yang valid (0–100).'); return;
+    }
+    nilaiHuruf = getHuruf(nilaiAngka);
+    if (!nilaiHuruf) { alert('Nilai angka tidak memiliki padanan huruf yang valid.'); return; }
+  } else {
+    nilaiHuruf = document.getElementById('nilai-huruf-select').value;
+    if (!nilaiHuruf) { alert('Silakan pilih nilai huruf.'); return; }
+    nilaiAngka = HURUF_TO_ANGKA[nilaiHuruf];
+  }
+
+  const fotoFile = document.getElementById('foto-input').files[0];
+  if (!fotoFile) { alert('Harap upload foto bukti terlebih dahulu.'); return; }
+
+  pendingEntry = {
+    nisn:       currentUser.nisn,
+    nama:       currentUser.nama,
+    kelas:      currentUser.kelas,
+    bentuk,
+    nilaiAngka,
+    nilaiHuruf,
+    fotoNama:   fotoFile.name,
+    fotoBase64: pendingPhotoBase64,
+    waktu:      new Date().toLocaleString('id-ID'),
+  };
+
+  sendToSheets(pendingEntry);
+}
+
+function retrySend() {
+  if (pendingEntry) sendToSheets(pendingEntry);
+}
+
+async function sendToSheets(entry) {
+  showModal('loading');
+
+  // Validasi URL belum diisi
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'PASTE_URL_APPS_SCRIPT_DISINI') {
+    showModal('error', 'URL Apps Script belum diisi. Ikuti panduan setup terlebih dahulu.');
+    return;
+  }
+
+  try {
+    // Kirim tanpa fotoBase64 ke sheets (hanya nama file)
+    const payload = {
+      nisn:       entry.nisn,
+      nama:       entry.nama,
+      kelas:      entry.kelas,
+      bentuk:     entry.bentuk,
+      nilaiAngka: entry.nilaiAngka,
+      nilaiHuruf: entry.nilaiHuruf,
+      fotoNama:   entry.fotoNama,
+      waktu:      entry.waktu,
+    };
+
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method:  'POST',
+      mode:    'no-cors', // Apps Script tidak support CORS standar
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+
+    // no-cors: response selalu opaque, asumsikan sukses jika tidak throw
+    // Simpan ke lokal DB & render tabel
+    nilaiDB.push(entry);
+    renderTable();
+
+    // Isi detail modal sukses
+    const detail = document.getElementById('modal-detail');
+    detail.innerHTML = `
+      <div class="row"><span>Nama</span><span>${entry.nama}</span></div>
+      <div class="row"><span>NISN</span><span>${entry.nisn}</span></div>
+      <div class="row"><span>Kelas</span><span>${entry.kelas}</span></div>
+      <div class="row"><span>Bentuk Tugas</span><span>${entry.bentuk}</span></div>
+      <div class="row"><span>Nilai Angka</span><span style="color:var(--green);font-weight:800">${entry.nilaiAngka}</span></div>
+      <div class="row"><span>Nilai Huruf</span><span style="color:var(--accent2);font-weight:800">${entry.nilaiHuruf}</span></div>
+      <div class="row"><span>Foto Bukti</span><span style="color:var(--green)">✓ ${entry.fotoNama}</span></div>
+      <div class="row"><span>Total Tersimpan</span><span style="color:var(--accent)">${nilaiDB.length} entri</span></div>
+    `;
+    showModal('success');
+
+  } catch (err) {
+    showModal('error', err.message || 'Koneksi gagal. Periksa jaringan Anda.');
+  }
+}
+
+// ===== MODAL STATE =====
+function showModal(state, errMsg) {
+  document.getElementById('modal-overlay').style.display = 'flex';
+  document.getElementById('modal-loading').style.display = state === 'loading' ? 'block' : 'none';
+  document.getElementById('modal-success').style.display = state === 'success' ? 'block' : 'none';
+  document.getElementById('modal-error').style.display   = state === 'error'   ? 'block' : 'none';
+  if (state === 'error' && errMsg) {
+    document.getElementById('modal-error-msg').textContent = errMsg;
+  }
+}
+
+// ===== RENDER TABLE =====
+function renderTable() {
+  const tbody = document.getElementById('data-tbody');
+  const countEl = document.getElementById('data-count');
+  const dlBtn = document.getElementById('btn-download');
+
+  countEl.textContent = nilaiDB.length;
+  dlBtn.disabled = nilaiDB.length === 0;
+
+  if (nilaiDB.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📭</div>Belum ada data yang diinput</div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = nilaiDB.map((e, i) => {
+    const hurufColor = getColor(e.nilaiHuruf);
+    const buktiCell = e.fotoBase64
+      ? `<img class="bukti-thumb" src="${e.fotoBase64}" alt="Bukti" title="${e.fotoNama}" onclick="window.open(this.src)">`
+      : `<span class="no-bukti">–</span>`;
+    return `
+      <tr>
+        <td style="color:var(--muted);font-size:0.75rem">${i + 1}</td>
+        <td style="font-family:monospace;font-size:0.78rem;color:var(--muted)">${e.nisn}</td>
+        <td style="font-weight:600;font-size:0.82rem">${e.nama}</td>
+        <td><span style="background:rgba(6,182,212,0.1);color:var(--accent2);border-radius:4px;padding:0.1rem 0.4rem;font-size:0.75rem;font-weight:600">${e.kelas}</span></td>
+        <td style="font-size:0.8rem;max-width:160px">${e.bentuk}</td>
+        <td style="font-weight:800;font-size:1rem;color:var(--green)">${e.nilaiAngka}</td>
+        <td><span style="background:${hurufColor}22;color:${hurufColor};border-radius:4px;padding:0.1rem 0.5rem;font-weight:800;font-size:0.9rem">${e.nilaiHuruf}</span></td>
+        <td>${buktiCell}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ===== DOWNLOAD EXCEL =====
+function downloadExcel() {
+  if (nilaiDB.length === 0) return;
+
+  const headers = ['NISN', 'NAMA', 'KELAS', 'BENTUK TUGAS', 'NILAI ANGKA', 'NILAI HURUF', 'BUKTI'];
+  const rows = nilaiDB.map(e => [
+    e.nisn,
+    e.nama,
+    e.kelas,
+    e.bentuk,
+    e.nilaiAngka,
+    e.nilaiHuruf,
+    e.fotoNama || '–',
+  ]);
+
+  const wsData = [headers, ...rows];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Column widths
+  ws['!cols'] = [
+    { wch: 15 }, // NISN
+    { wch: 36 }, // NAMA
+    { wch: 8  }, // KELAS
+    { wch: 44 }, // BENTUK TUGAS
+    { wch: 12 }, // NILAI ANGKA
+    { wch: 12 }, // NILAI HURUF
+    { wch: 30 }, // BUKTI
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Nilai Geografi');
+
+  const now = new Date();
+  const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  XLSX.writeFile(wb, `Nilai_Geografi_${stamp}.xlsx`);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+  resetForm();
+}
+
+function resetForm() {
+  document.getElementById('bentuk-tugas').value = '';
+  document.getElementById('nilai-angka').value = '';
+  setHurufDisplay('', '');
+  document.getElementById('nilai-huruf-select').value = '';
+  setAngkaDisplay('');
+  document.getElementById('foto-input').value = '';
+  document.getElementById('photo-upload-area').classList.remove('has-file');
+  document.getElementById('photo-name').style.display = 'none';
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('preview-img').src = '';
+  pendingPhotoBase64 = null;
+  setMode('angka');
+  document.querySelector('.grade-row').style.display = 'grid';
+}
+
+// ===== INIT =====
+buildCriteria();
+</script>
+</body>
+</html>
