@@ -2,1408 +2,1265 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Input Nilai Geografi</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0f1e;
-    --surface: #111827;
-    --surface2: #1a2235;
-    --border: #1f2d45;
-    --accent: #3b82f6;
-    --accent2: #06b6d4;
-    --gold: #f59e0b;
-    --green: #10b981;
-    --red: #ef4444;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --radius: 12px;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 80%, rgba(6,182,212,0.06) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .globe-bg {
-    position: fixed;
-    top: 50%;
-    right: -10%;
-    transform: translateY(-50%);
-    width: 600px;
-    height: 600px;
-    border-radius: 50%;
-    border: 1px solid rgba(59,130,246,0.08);
-    box-shadow: 0 0 80px rgba(59,130,246,0.05), inset 0 0 80px rgba(59,130,246,0.03);
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.5;
-  }
-  .globe-bg::before {
-    content: '';
-    position: absolute;
-    inset: 20px;
-    border-radius: 50%;
-    border: 1px solid rgba(6,182,212,0.06);
-  }
-
-  .page { position: relative; z-index: 1; }
-
-  /* ======= LOGIN ======= */
-  #login-page {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 2rem;
-  }
-
-  .login-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 3rem;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
-    animation: slideUp 0.6s ease;
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .logo-area {
-    text-align: center;
-    margin-bottom: 2.5rem;
-  }
-
-  .logo-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 1rem;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    box-shadow: 0 8px 24px rgba(59,130,246,0.3);
-  }
-
-  .logo-area h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.6rem;
-    background: linear-gradient(135deg, #e2e8f0, var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 0.3rem;
-  }
-
-  .logo-area p {
-    color: var(--muted);
-    font-size: 0.85rem;
-  }
-
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-
-  label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    margin-bottom: 0.5rem;
-  }
-
-  input[type="text"], input[type="number"], select, textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.85rem 1rem;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 0.95rem;
-    transition: all 0.2s;
-    outline: none;
-  }
-
-  input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
-  }
-
-  select option { background: var(--surface2); }
-
-  .btn {
-    width: 100%;
-    padding: 0.9rem;
-    border: none;
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.03em;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff;
-    box-shadow: 0 4px 20px rgba(59,130,246,0.35);
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 28px rgba(59,130,246,0.45);
-  }
-
-  .btn-primary:active { transform: translateY(0); }
-
-  .error-msg {
-    background: rgba(239,68,68,0.1);
-    border: 1px solid rgba(239,68,68,0.3);
-    border-radius: 8px;
-    padding: 0.7rem 1rem;
-    font-size: 0.85rem;
-    color: #fca5a5;
-    margin-bottom: 1rem;
-    display: none;
-  }
-
-  /* ======= MAIN APP ======= */
-  #app-page { display: none; min-height: 100vh; }
-
-  .topbar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 1rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(10px);
-  }
-
-  .topbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .topbar-brand .icon {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-  }
-
-  .topbar-brand h2 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text);
-  }
-
-  .topbar-brand p { font-size: 0.75rem; color: var(--muted); }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .user-badge {
-    text-align: right;
-  }
-
-  .user-badge .name { font-size: 0.9rem; font-weight: 600; }
-  .user-badge .nisn { font-size: 0.75rem; color: var(--muted); }
-
-  .avatar {
-    width: 38px; height: 38px;
-    background: linear-gradient(135deg, #7c3aed, #db2777);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-  }
-
-  .logout-btn {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.4rem 0.8rem;
-    color: var(--muted);
-    font-family: inherit;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .logout-btn:hover { border-color: var(--red); color: var(--red); }
-
-  .main-content {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 2.5rem 1.5rem;
-  }
-
-  .page-header {
-    margin-bottom: 2rem;
-  }
-
-  .page-header h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
-    margin-bottom: 0.4rem;
-    background: linear-gradient(135deg, var(--text), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .page-header p { color: var(--muted); font-size: 0.9rem; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    animation: fadeIn 0.5s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .card-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--accent2);
-    margin-bottom: 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .card-title::before {
-    content: '';
-    display: inline-block;
-    width: 3px;
-    height: 14px;
-    background: var(--accent2);
-    border-radius: 2px;
-  }
-
-  /* Grade type toggle */
-  .grade-toggle {
-    display: flex;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 4px;
-    gap: 4px;
-    margin-bottom: 1.5rem;
-  }
-
-  .toggle-btn {
-    flex: 1;
-    padding: 0.7rem;
-    border: none;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.25s;
-    background: transparent;
-    color: var(--muted);
-  }
-
-  .toggle-btn.active {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff;
-    box-shadow: 0 2px 12px rgba(59,130,246,0.3);
-  }
-
-  /* Grade row */
-  .grade-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    align-items: end;
-  }
-
-  .grade-display {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.85rem 1rem;
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-    color: var(--muted);
-    transition: all 0.3s;
-  }
-
-  .grade-display.filled {
-    border-color: var(--green);
-    color: var(--text);
-  }
-
-  .grade-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 40px;
-    height: 32px;
-    padding: 0 0.5rem;
-    border-radius: 6px;
-    font-weight: 800;
-    font-size: 1rem;
-    background: linear-gradient(135deg, var(--green), #059669);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(16,185,129,0.3);
-  }
-
-  .criteria-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-    margin-top: 0.5rem;
-  }
-
-  .criteria-table th {
-    text-align: left;
-    padding: 0.5rem 0.75rem;
-    color: var(--muted);
-    font-weight: 600;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-  }
-
-  .criteria-table td {
-    padding: 0.4rem 0.75rem;
-    border-bottom: 1px solid rgba(31,45,69,0.5);
-    color: var(--text);
-  }
-
-  .criteria-table tr:last-child td { border-bottom: none; }
-
-  .criteria-table tr.highlight td {
-    background: rgba(59,130,246,0.08);
-    color: var(--accent2);
-    font-weight: 700;
-  }
-
-  .letter-pill {
-    display: inline-block;
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 0.8rem;
-  }
-
-  /* Photo upload */
-  .photo-upload {
-    border: 2px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 2rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .photo-upload:hover { border-color: var(--accent); background: rgba(59,130,246,0.03); }
-  .photo-upload.has-file { border-color: var(--green); border-style: solid; }
-
-  .photo-upload input[type="file"] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-  }
-
-  .upload-icon { font-size: 2rem; margin-bottom: 0.75rem; }
-  .upload-text { font-size: 0.85rem; color: var(--muted); }
-  .upload-text strong { color: var(--accent); }
-
-  .photo-preview {
-    display: none;
-    margin-top: 1rem;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .photo-preview img {
-    width: 100%;
-    max-height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
-  }
-
-  .photo-name {
-    font-size: 0.8rem;
-    color: var(--green);
-    margin-top: 0.5rem;
-    display: none;
-  }
-
-  /* Submit */
-  .submit-area { margin-top: 0.5rem; }
-
-  .btn-submit {
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none;
-    border-radius: var(--radius);
-    color: #fff;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 20px rgba(59,130,246,0.3);
-    letter-spacing: 0.03em;
-  }
-
-  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(59,130,246,0.4); }
-  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-  /* Success modal */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    backdrop-filter: blur(4px);
-    display: none;
-    padding: 1rem;
-  }
-
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 2.5rem;
-    text-align: center;
-    max-width: 380px;
-    width: 100%;
-    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
-  }
-
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .success-icon {
-    width: 72px; height: 72px;
-    background: linear-gradient(135deg, var(--green), #059669);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    margin: 0 auto 1.5rem;
-    box-shadow: 0 8px 24px rgba(16,185,129,0.4);
-  }
-
-  .modal h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    margin-bottom: 0.5rem;
-  }
-  .modal p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
-
-  .modal-detail {
-    background: var(--surface2);
-    border-radius: var(--radius);
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    text-align: left;
-  }
-
-  .modal-detail .row {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.3rem 0;
-    font-size: 0.85rem;
-  }
-  .modal-detail .row span:first-child { color: var(--muted); }
-  .modal-detail .row span:last-child { font-weight: 600; }
-
-  .criteria-toggle {
-    font-size: 0.78rem;
-    color: var(--accent2);
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    margin-top: 0.5rem;
-    display: inline-block;
-  }
-
-  .criteria-wrap { display: none; margin-top: 1rem; }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  /* Data table */
-  .data-section { margin-top: 2rem; }
-
-  .data-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .data-header h4 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .count-badge {
-    background: rgba(59,130,246,0.15);
-    border: 1px solid rgba(59,130,246,0.3);
-    border-radius: 20px;
-    padding: 0.15rem 0.6rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--accent);
-  }
-
-  .btn-download {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    background: linear-gradient(135deg, #10b981, #059669);
-    border: none;
-    border-radius: 8px;
-    padding: 0.55rem 1rem;
-    color: #fff;
-    font-family: inherit;
-    font-size: 0.82rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 2px 12px rgba(16,185,129,0.3);
-  }
-  .btn-download:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(16,185,129,0.4); }
-  .btn-download:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-  .table-wrap {
-    overflow-x: auto;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-  }
-
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-    min-width: 640px;
-  }
-
-  .data-table thead tr {
-    background: var(--surface2);
-  }
-
-  .data-table th {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-  }
-
-  .data-table td {
-    padding: 0.7rem 1rem;
-    border-bottom: 1px solid rgba(31,45,69,0.5);
-    color: var(--text);
-    vertical-align: middle;
-  }
-
-  .data-table tbody tr:last-child td { border-bottom: none; }
-  .data-table tbody tr:hover { background: rgba(59,130,246,0.04); }
-
-  .empty-state {
-    text-align: center;
-    padding: 2.5rem;
-    color: var(--muted);
-    font-size: 0.85rem;
-  }
-  .empty-state .empty-icon { font-size: 2rem; margin-bottom: 0.5rem; }
-
-  .bukti-thumb {
-    width: 36px;
-    height: 36px;
-    border-radius: 6px;
-    object-fit: cover;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-  .bukti-thumb:hover { transform: scale(1.1); }
-
-  .no-bukti { color: var(--muted); font-size: 0.75rem; }
-
-  @media (max-width: 480px) {
-    .login-card { padding: 2rem; }
-    .main-content { padding: 1.5rem 1rem; }
-    .grade-row { grid-template-columns: 1fr; }
-    .topbar { padding: 0.75rem 1rem; }
-    .user-badge .name { font-size: 0.8rem; }
-  }
+/* ─────────────────────────────────────────────
+   RESET & ROOT
+───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Bright Blue Palette */
+  --sky:       #0ea5e9;
+  --sky-deep:  #0284c7;
+  --sky-light: #38bdf8;
+  --sky-pale:  #e0f2fe;
+  --sky-ultra: #f0f9ff;
+  --azure:     #1d4ed8;
+  --blue:      #2563eb;
+  --blue-lt:   #3b82f6;
+  --indigo:    #4f46e5;
+  --white:     #ffffff;
+  --slate-50:  #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --green:     #10b981;
+  --red:       #ef4444;
+  --amber:     #f59e0b;
+  --r:         14px;
+  --r-sm:      8px;
+  --r-lg:      20px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+  --shadow:    0 4px 16px rgba(14,165,233,.12), 0 2px 6px rgba(0,0,0,.06);
+  --shadow-md: 0 8px 32px rgba(14,165,233,.18), 0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg: 0 20px 60px rgba(2,132,199,.22), 0 8px 24px rgba(0,0,0,.1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--sky-ultra);
+  min-height: 100vh;
+  color: var(--slate-800);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────────────────────────────────────
+   ANIMATED BACKGROUND
+───────────────────────────────────────────── */
+.bg-scene {
+  position: fixed; inset: 0; z-index: 0;
+  overflow: hidden; pointer-events: none;
+  background: linear-gradient(145deg, #e0f2fe 0%, #f0f9ff 40%, #dbeafe 100%);
+}
+.bg-blob {
+  position: absolute; border-radius: 50%;
+  animation: blobFloat 16s ease-in-out infinite;
+}
+.b1 {
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(14,165,233,.18) 0%, transparent 70%);
+  top: -200px; left: -150px; animation-delay: 0s;
+}
+.b2 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(37,99,235,.12) 0%, transparent 70%);
+  bottom: -100px; right: -100px; animation-delay: -7s;
+}
+.b3 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(56,189,248,.14) 0%, transparent 70%);
+  top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: -12s;
+}
+@keyframes blobFloat {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%  { transform: translate(40px,-50px) scale(1.06); }
+  66%  { transform: translate(-30px,35px) scale(0.94); }
+}
+
+/* Dot pattern */
+.bg-dots {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(14,165,233,.25) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.6;
+}
+
+/* ─────────────────────────────────────────────
+   SCREEN SYSTEM
+───────────────────────────────────────────── */
+.screen { display: none; position: relative; z-index: 1; }
+.screen.active { display: block; }
+#loginScreen.active {
+  display: flex; min-height: 100vh;
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+
+/* ─────────────────────────────────────────────
+   LOGIN
+───────────────────────────────────────────── */
+.login-card {
+  width: 100%; max-width: 460px;
+  background: var(--white);
+  border-radius: 24px;
+  padding: 52px 44px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(14,165,233,.15);
+  animation: popIn .45s cubic-bezier(.34,1.56,.64,1) both;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--sky), var(--blue-lt), var(--sky-light));
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(.92) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.login-logo {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: linear-gradient(135deg, var(--sky), var(--blue));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin-bottom: 24px;
+  box-shadow: 0 8px 20px rgba(14,165,233,.35);
+}
+
+.login-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: 1.8px;
+  text-transform: uppercase; color: var(--sky-deep);
+  background: var(--sky-pale); padding: 5px 12px;
+  border-radius: 100px; margin-bottom: 14px;
+}
+
+.login-title {
+  font-size: 34px; font-weight: 800; color: var(--slate-900);
+  line-height: 1.15; margin-bottom: 8px;
+}
+.login-title span { color: var(--sky); }
+
+.login-sub {
+  font-size: 14px; color: var(--slate-500); margin-bottom: 36px;
+  line-height: 1.6; font-weight: 400;
+}
+
+/* ─────────────────────────────────────────────
+   FORM ELEMENTS
+───────────────────────────────────────────── */
+.f-group { margin-bottom: 18px; }
+.f-group:last-child { margin-bottom: 0; }
+
+.f-label {
+  display: block; font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--slate-500); margin-bottom: 7px;
+}
+
+.f-input, .f-select {
+  width: 100%; padding: 13px 16px;
+  background: var(--slate-50);
+  border: 1.5px solid var(--slate-200);
+  border-radius: var(--r-sm);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px; font-weight: 500;
+  color: var(--slate-800);
+  outline: none; transition: all .2s;
+  -webkit-appearance: none; appearance: none;
+}
+.f-input::placeholder { color: var(--slate-400); font-weight: 400; }
+.f-input:focus, .f-select:focus {
+  border-color: var(--sky);
+  background: var(--white);
+  box-shadow: 0 0 0 3.5px rgba(14,165,233,.15);
+}
+.f-input.err { border-color: var(--red); box-shadow: 0 0 0 3px rgba(239,68,68,.12); }
+
+.sel-wrap { position: relative; }
+.sel-wrap::after {
+  content: '▾'; position: absolute; right: 14px; top: 50%;
+  transform: translateY(-50%); color: var(--sky-deep);
+  pointer-events: none; font-size: 13px;
+}
+.f-select { padding-right: 38px; cursor: pointer; }
+.f-select option { font-family: 'Plus Jakarta Sans', sans-serif; background: white; color: var(--slate-800); }
+.f-select optgroup { font-weight: 700; color: var(--sky-deep); }
+.f-select:disabled { opacity: .55; cursor: not-allowed; }
+
+.err-hint { font-size: 12px; color: var(--red); margin-top: 6px; display: none; font-weight: 500; }
+.err-hint.show { display: block; }
+
+/* ─────────────────────────────────────────────
+   BUTTONS
+───────────────────────────────────────────── */
+.btn-primary {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, var(--sky-deep), var(--blue-lt));
+  color: var(--white); border: none; border-radius: var(--r-sm);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  letter-spacing: .3px;
+  box-shadow: 0 4px 16px rgba(2,132,199,.35);
+  transition: all .2s; position: relative; overflow: hidden;
+}
+.btn-primary::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.12), transparent);
+  pointer-events: none;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(2,132,199,.45); }
+.btn-primary:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(2,132,199,.3); }
+.btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+/* secondary button used for toggling riwayat */
+.btn-secondary {
+  padding: 10px 20px;
+  background: var(--sky-light);
+  color: var(--sky-deep);
+  border: 1.5px solid var(--sky-deep);
+  border-radius: var(--r-sm);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-block;
+}
+.btn-secondary:hover {
+  background: var(--sky-deep);
+  color: var(--white);
+}
+.btn-secondary:active { transform: translateY(0); }
+.btn-secondary:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ─────────────────────────────────────────────
+   APP HEADER
+───────────────────────────────────────────── */
+.app-header {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(255,255,255,.92);
+  border-bottom: 1px solid var(--slate-200);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 0 28px;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  box-shadow: 0 1px 12px rgba(14,165,233,.1);
+}
+
+.hdr-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.hdr-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--sky), var(--blue-lt));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; box-shadow: 0 3px 10px rgba(14,165,233,.3); flex-shrink: 0;
+}
+.hdr-brand h1 { font-size: 16px; font-weight: 800; color: var(--slate-900); }
+.hdr-brand p  { font-size: 11px; color: var(--slate-400); font-weight: 500; }
+
+.hdr-right { display: flex; align-items: center; gap: 12px; }
+.hdr-user { text-align: right; }
+.hdr-name { font-size: 13px; font-weight: 700; color: var(--slate-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.hdr-kelas { font-size: 11px; color: var(--sky-deep); font-weight: 600; }
+
+.btn-logout {
+  padding: 8px 16px; border-radius: 8px;
+  background: var(--slate-100); border: 1px solid var(--slate-200);
+  color: var(--slate-600); font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+  font-family: 'Plus Jakarta Sans', sans-serif; flex-shrink: 0;
+}
+.btn-logout:hover { background: #fee2e2; border-color: #fca5a5; color: var(--red); }
+
+/* ─────────────────────────────────────────────
+   MAIN LAYOUT
+───────────────────────────────────────────── */
+.main-wrap { max-width: 720px; margin: 0 auto; padding: 36px 20px 80px; }
+
+.page-title { margin-bottom: 32px; }
+.page-title h2 { font-size: 26px; font-weight: 800; color: var(--slate-900); }
+.page-title p  { font-size: 14px; color: var(--slate-500); margin-top: 4px; font-weight: 400; }
+.page-title button { margin-top: 12px; }
+
+/* fixed position button for opening history page */
+#btnRiwayat {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 250;
+  width: auto;
+  padding: 12px 24px;
+}
+
+/* statistik di halaman riwayat */
+.stats p { margin: 4px 0; font-size: 14px; }
+.stats span { font-weight: 600; color: var(--sky-deep); }
+
+/* ─────────────────────────────────────────────
+   SECTION CARDS
+───────────────────────────────────────────── */
+.sec-card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--slate-100);
+  animation: slideUp .35s ease both;
+}
+.sec-card:nth-child(1) { animation-delay: .05s; }
+.sec-card:nth-child(2) { animation-delay: .1s; }
+.sec-card:nth-child(3) { animation-delay: .15s; }
+.sec-card:nth-child(4) { animation-delay: .2s; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sec-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: 800; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--sky-deep); margin-bottom: 20px;
+}
+.sec-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--sky-pale);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.sec-line { flex: 1; height: 1.5px; background: var(--slate-100); }
+
+/* ─────────────────────────────────────────────
+   GRADE PANEL
+───────────────────────────────────────────── */
+.grade-grid { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; }
+
+.grade-preview {
+  background: linear-gradient(135deg, var(--sky-deep), var(--blue-lt));
+  border-radius: 16px; padding: 24px 20px; text-align: center;
+  min-width: 140px; box-shadow: 0 8px 24px rgba(2,132,199,.3);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.gp-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.7); }
+.gp-angka { font-size: 52px; font-weight: 800; color: var(--white); line-height: 1; }
+.gp-huruf { font-size: 20px; font-weight: 700; color: rgba(255,255,255,.85); }
+
+/* ─────────────────────────────────────────────
+   UPLOAD ZONE
+───────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--slate-300); border-radius: var(--r);
+  padding: 36px 20px; text-align: center; cursor: pointer;
+  transition: all .2s; background: var(--slate-50);
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--sky); background: var(--sky-pale);
+}
+.upload-zone.has-file { border-style: solid; border-color: var(--sky); background: var(--sky-ultra); }
+.upload-icon { font-size: 38px; margin-bottom: 10px; }
+.upload-text { font-size: 14px; color: var(--slate-600); font-weight: 600; }
+.upload-hint { font-size: 12px; color: var(--slate-400); margin-top: 4px; }
+#fInput { display: none; }
+.prev-img {
+  max-width: 100%; max-height: 220px; object-fit: contain;
+  border-radius: 10px; display: none; margin: 0 auto;
+  box-shadow: 0 4px 16px rgba(0,0,0,.12);
+}
+.file-err { color: var(--red); font-size: 12px; margin-top: 8px; display: none; font-weight: 600; }
+
+/* ─────────────────────────────────────────────
+   STATUS BADGE
+───────────────────────────────────────────── */
+.gas-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--sky-ultra); border: 1px solid rgba(14,165,233,.25);
+  border-radius: 10px; padding: 10px 14px; margin-top: 16px;
+  font-size: 12px; color: var(--slate-600); font-weight: 500;
+}
+.gas-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.gas-dot.ok  { background: var(--green); box-shadow: 0 0 6px rgba(16,185,129,.5); }
+.gas-dot.warn { background: var(--amber); box-shadow: 0 0 6px rgba(245,158,11,.4); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+/* ─────────────────────────────────────────────
+   NILAI TABLE
+───────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--slate-200); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  background: var(--sky-pale); color: var(--sky-deep);
+  padding: 12px 14px; text-align: left; font-weight: 800;
+  font-size: 11px; letter-spacing: .8px; text-transform: uppercase; white-space: nowrap;
+}
+thead th:first-child { border-radius: 12px 0 0 0; }
+thead th:last-child  { border-radius: 0 12px 0 0; }
+tbody td { padding: 11px 14px; border-top: 1px solid var(--slate-100); color: var(--slate-700); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--sky-ultra); }
+.badge-huruf {
+  display: inline-block; padding: 3px 11px; border-radius: 20px;
+  background: var(--sky-pale); color: var(--sky-deep);
+  font-weight: 800; font-size: 12px; border: 1px solid rgba(14,165,233,.3);
+}
+.thumb-img {
+  width: 42px; height: 42px; object-fit: cover; border-radius: 7px;
+  border: 1.5px solid var(--slate-200); cursor: pointer;
+  transition: transform .2s, box-shadow .2s; display: block;
+}
+.thumb-img:hover { transform: scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.no-data  { text-align: center; color: var(--slate-400); padding: 28px; font-size: 13px; }
+.load-row { text-align: center; color: var(--sky-deep); padding: 24px; font-size: 13px; font-weight: 600; }
+
+/* ─────────────────────────────────────────────
+   SPINNER
+───────────────────────────────────────────── */
+.spin {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(14,165,233,.25); border-top-color: var(--sky);
+  border-radius: 50%; animation: rotate .6s linear infinite; vertical-align: middle; margin-right: 6px;
+}
+@keyframes rotate { to { transform: rotate(360deg); } }
+
+/* ─────────────────────────────────────────────
+   MODAL
+───────────────────────────────────────────── */
+.modal-bg {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(15,23,42,.5); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+.modal-bg.show { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: var(--white); border-radius: 24px;
+  padding: 44px 36px; max-width: 480px; width: 100%; text-align: center;
+  transform: scale(.93) translateY(16px); transition: transform .3s;
+  box-shadow: 0 32px 80px rgba(0,0,0,.2);
+  max-height: 90vh; overflow-y: auto;
+  border: 1px solid var(--slate-100);
+}
+.modal-bg.show .modal-box { transform: scale(1) translateY(0); }
+.modal-box::before {
+  content: ''; display: block; height: 4px; border-radius: 4px;
+  background: linear-gradient(90deg, var(--sky), var(--blue-lt));
+  margin: -44px -36px 28px; border-radius: 24px 24px 0 0;
+}
+.modal-check {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--green), #34d399);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin: 0 auto 20px;
+  box-shadow: 0 8px 24px rgba(16,185,129,.35);
+}
+.modal-title { font-size: 24px; font-weight: 800; color: var(--slate-900); margin-bottom: 6px; }
+.modal-sub   { font-size: 13px; color: var(--slate-500); margin-bottom: 22px; }
+.modal-mip   { width: 100%; max-height: 160px; object-fit: cover; border-radius: 10px; margin-bottom: 18px; display: none; }
+.modal-rows  { text-align: left; background: var(--slate-50); border-radius: 12px; padding: 16px; margin-bottom: 22px; border: 1px solid var(--slate-100); }
+.modal-row   { display: flex; justify-content: space-between; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--slate-100); gap: 12px; }
+.modal-row:last-child { border-bottom: none; }
+.mr-k { font-size: 12px; color: var(--slate-500); font-weight: 600; flex-shrink: 0; }
+.mr-v { font-size: 13px; font-weight: 700; color: var(--slate-800); text-align: right; word-break: break-word; }
+
+/* ─────────────────────────────────────────────
+   LIGHTBOX
+───────────────────────────────────────────── */
+.lightbox { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,.88); display: none; align-items: center; justify-content: center; }
+.lightbox.show { display: flex; }
+.lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; box-shadow: 0 16px 60px rgba(0,0,0,.5); }
+.lb-close { position: absolute; top: 20px; right: 24px; font-size: 34px; color: white; cursor: pointer; font-weight: 300; line-height: 1; }
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .login-card { padding: 36px 22px; }
+  .login-title { font-size: 28px; }
+  .app-header { padding: 0 16px; height: 58px; }
+  .hdr-user { display: none; }
+  .main-wrap { padding: 20px 14px 60px; }
+  .sec-card { padding: 20px; }
+  .grade-grid { grid-template-columns: 1fr; }
+  .grade-preview { flex-direction: row; gap: 16px; min-width: unset; padding: 18px 20px; }
+  .gp-angka { font-size: 40px; }
+  .modal-box { padding: 32px 20px; }
+  .modal-box::before { margin: -32px -20px 24px; }
+  thead th, tbody td { padding: 9px 10px; font-size: 12px; }
+}
 </style>
 </head>
 <body>
 
-<div class="globe-bg"></div>
+<!-- ── BG ── -->
+<div class="bg-scene">
+  <div class="bg-blob b1"></div>
+  <div class="bg-blob b2"></div>
+  <div class="bg-blob b3"></div>
+</div>
+<div class="bg-dots"></div>
 
-<!-- LOGIN PAGE -->
-<div id="login-page" class="page">
+<!-- ═══════════════════════════════════════════
+     LOGIN
+════════════════════════════════════════════ -->
+<div id="loginScreen" class="screen active">
   <div class="login-card">
-    <div class="logo-area">
-      <div class="logo-icon">🌍</div>
-      <h1>Geografi</h1>
-      <p>Sistem Input Nilai · Kelas X</p>
+    <div class="login-logo">🌍</div>
+    <div class="login-tag">📘 Geografi SMA</div>
+    <h1 class="login-title">Input <span>Nilai</span><br>Siswa</h1>
+    <p class="login-sub">Masuk dengan NISN Anda untuk mengisi dan melihat riwayat nilai tugas Geografi.</p>
+    <div class="f-group">
+      <label class="f-label">Nomor NISN</label>
+      <input id="nisnInput" class="f-input" type="text" placeholder="Contoh: 0097758369" autocomplete="off" maxlength="20" inputmode="numeric">
+      <p class="err-hint" id="nisnErr">NISN tidak ditemukan. Periksa kembali nomor NISN Anda.</p>
     </div>
-    <div class="error-msg" id="login-error">NISN tidak ditemukan. Silakan coba lagi.</div>
-    <div class="form-group">
-      <label>NISN Siswa</label>
-      <input type="text" id="nisn-input" placeholder="Masukkan NISN Anda..." maxlength="15"
-             onkeydown="if(event.key==='Enter') doLogin()">
-    </div>
-    <button class="btn btn-primary" onclick="doLogin()">Masuk →</button>
+    <button class="btn-primary" onclick="doLogin()">Masuk ke Sistem →</button>
   </div>
 </div>
 
-<!-- APP PAGE -->
-<div id="app-page" class="page">
-  <nav class="topbar">
-    <div class="topbar-brand">
-      <div class="icon">🌍</div>
+<!-- ═══════════════════════════════════════════
+     APP
+════════════════════════════════════════════ -->
+<div id="appScreen" class="screen">
+
+  <header class="app-header">
+    <div class="hdr-brand">
+      <div class="hdr-icon">🌍</div>
       <div>
-        <h2>Input Nilai Geografi</h2>
-        <p id="topbar-kelas">Kelas X · Semester Aktif</p>
+        <h1>Nilai Geografi</h1>
+        <p>SMA · 2025/2026</p>
       </div>
     </div>
-    <div class="user-info">
-      <div class="user-badge">
-        <div class="name" id="user-name">—</div>
-        <div class="nisn" id="user-nisn">—</div>
+    <div class="hdr-right">
+      <div class="hdr-user">
+        <div class="hdr-name" id="hdrName">—</div>
+        <div class="hdr-kelas" id="hdrKelas">—</div>
       </div>
-      <div class="avatar" id="user-avatar">?</div>
-      <button class="logout-btn" onclick="doLogout()">Keluar</button>
+      <button class="btn-logout" onclick="doLogout()">Keluar</button>
     </div>
-  </nav>
+  </header>
 
-  <div class="main-content">
-    <div class="page-header">
-      <h3>Input Nilai</h3>
-      <p>Silakan lengkapi formulir nilai Geografi di bawah ini</p>
-    </div>
-
-    <!-- Bentuk Tugas -->
-    <div class="card">
-      <div class="card-title">Bentuk Tugas</div>
-      <div id="kelas-badge" style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.25);border-radius:6px;padding:0.3rem 0.75rem;font-size:0.78rem;font-weight:600;color:var(--accent2);margin-bottom:1rem;">
-        <span>📚</span><span id="kelas-label">—</span>
-      </div>
-      <div class="form-group" style="margin-bottom:0">
-        <select id="bentuk-tugas">
-          <option value="">— Pilih Bentuk Tugas —</option>
-        </select>
-      </div>
+  <div class="main-wrap">
+    <div class="page-title">
+      <h2>Form Input Nilai</h2>
+      <p id="pageSub">Isi seluruh data tugas dengan benar sebelum mengirim.</p>
     </div>
 
-    <!-- Input Nilai -->
-    <div class="card">
-      <div class="card-title">Nilai</div>
-
-      <div class="grade-toggle">
-        <button class="toggle-btn active" id="btn-angka" onclick="setMode('angka')">🔢 Nilai Angka</button>
-        <button class="toggle-btn" id="btn-huruf" onclick="setMode('huruf')">🔤 Nilai Huruf</button>
+    <!-- 1. PILIH TUGAS -->
+    <div class="sec-card">
+      <div class="sec-title">
+        <div class="sec-icon">📋</div>
+        <span>Pilih Tugas</span>
+        <div class="sec-line"></div>
       </div>
-
-      <div class="grade-row">
-        <!-- Angka -->
-        <div class="form-group" style="margin:0">
-          <label>Nilai Angka <span style="color:var(--accent2)">(0–100)</span></label>
-          <input type="number" id="nilai-angka" min="0" max="100" placeholder="Contoh: 85"
-                 oninput="onAngkaChange()" style="font-size:1.1rem; font-weight:700">
-        </div>
-        <!-- Huruf -->
-        <div class="form-group" style="margin:0">
-          <label>Nilai Huruf</label>
-          <div class="grade-display" id="huruf-display">
-            <span style="font-size:0.8rem">— otomatis terisi —</span>
-          </div>
+      <div class="f-group">
+        <label class="f-label">Kelas</label>
+        <div class="sel-wrap">
+          <select id="kelasSelect" class="f-select" onchange="onKelasChange()">
+            <option value="">— Pilih kelas —</option>
+            <option value="X">Kelas X</option>
+            <option value="XII">Kelas XII</option>
+          </select>
         </div>
       </div>
+      <div class="f-group">
+        <label class="f-label">Bentuk Tugas</label>
+        <div class="sel-wrap">
+          <select id="tugasSelect" class="f-select" disabled>
+            <option value="">— Pilih kelas terlebih dahulu —</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
-      <!-- Huruf mode: select huruf, show angka range -->
-      <div id="huruf-input-wrap" style="display:none; margin-top:1rem;">
-        <div class="grade-row">
-          <div class="form-group" style="margin:0">
-            <label>Nilai Huruf</label>
-            <select id="nilai-huruf-select" onchange="onHurufChange()">
-              <option value="">— Pilih Huruf —</option>
-              <option value="A++">A++ (100)</option>
-              <option value="A+">A+ (98)</option>
-              <option value="A">A (95)</option>
-              <option value="A-">A- (90)</option>
-              <option value="B+">B+ (88)</option>
-              <option value="B">B (85)</option>
-              <option value="B-">B- (81)</option>
-              <option value="C+">C+ (79)</option>
-              <option value="C">C (75)</option>
-              <option value="C-">C- (70)</option>
-              <option value="D">D (65)</option>
-              <option value="E">E (&lt;50)</option>
-            </select>
+    <!-- 2. INPUT NILAI -->
+    <div class="sec-card">
+      <div class="sec-title">
+        <div class="sec-icon">🎯</div>
+        <span>Input Nilai (pilih salah satu)</span>
+        <div class="sec-line"></div>
+      </div>
+      <div class="grade-grid">
+        <div>
+          <div class="f-group">
+            <label class="f-label">Nilai Angka (0–100)</label>
+            <input id="angkaInput" class="f-input" type="number" min="0" max="100" placeholder="Contoh: 85" oninput="onAngkaInput()" inputmode="numeric">
           </div>
-          <div class="form-group" style="margin:0">
-            <label>Nilai Angka</label>
-            <div class="grade-display" id="angka-display">
-              <span style="font-size:0.8rem">— otomatis terisi —</span>
+          <div class="f-group">
+            <label class="f-label">Nilai Huruf</label>
+            <div class="sel-wrap">
+              <select id="hurufSelect" class="f-select" onchange="onHurufChange()">
+                <option value="">— Pilih nilai huruf —</option>
+                <option value="A++">A++ — 100</option>
+                <option value="A+">A+ — 98</option>
+                <option value="A">A — 95</option>
+                <option value="A-">A- — 90</option>
+                <option value="B+">B+ — 88</option>
+                <option value="B">B — 85</option>
+                <option value="B-">B- — 81</option>
+                <option value="C+">C+ — 79</option>
+                <option value="C">C — 75</option>
+                <option value="C-">C- — 70</option>
+                <option value="D">D — 65</option>
+                <option value="E">E — &lt;50</option>
+              </select>
             </div>
           </div>
         </div>
+        <div class="grade-preview">
+          <div class="gp-label">Nilai</div>
+          <div class="gp-angka" id="pvAngka">—</div>
+          <div class="gp-huruf" id="pvHuruf">—</div>
+        </div>
       </div>
+    </div>
 
-      <!-- Criteria reference -->
-      <span class="criteria-toggle" onclick="toggleCriteria()">📊 Lihat tabel kriteria penilaian</span>
-      <div class="criteria-wrap" id="criteria-wrap">
-        <table class="criteria-table">
+    <!-- 3. FOTO BUKTI -->
+    <div class="sec-card">
+      <div class="sec-title">
+        <div class="sec-icon">📸</div>
+        <span>Foto Bukti</span>
+        <div class="sec-line"></div>
+      </div>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fInput').click()">
+        <div id="uploadPH">
+          <div class="upload-icon">📎</div>
+          <p class="upload-text">Klik atau seret foto ke sini</p>
+          <p class="upload-hint">Format JPG, PNG, WEBP · Maks. 1 MB</p>
+        </div>
+        <img id="prevImg" class="prev-img" alt="Preview">
+      </div>
+      <p class="file-err" id="fileErr">❌ Ukuran file melebihi 1 MB. Pilih file yang lebih kecil.</p>
+      <input type="file" id="fInput" accept="image/*" onchange="onFileChange(event)">
+    </div>
+
+    <!-- SUBMIT -->
+    <button class="btn-primary" id="btnSubmit" onclick="doSubmit()" style="margin-bottom:12px;">
+      Kirim Nilai →
+    </button>
+
+    <!-- GAS STATUS -->
+    <div class="gas-badge" id="gasBadge">
+      <div class="gas-dot ok" id="gasDot"></div>
+      <span id="gasText">Database: Terhubung ✓</span>
+    </div>
+
+
+  </div><!-- /main-wrap -->
+  <button id="btnRiwayat" class="btn-secondary" onclick="showHistory()">Riwayat Nilai</button>
+</div><!-- /appScreen -->
+
+<!-- ═══════════════════════════════════════════
+     HISTORY SCREEN
+════════════════════════════════════════════ -->
+<div id="historyScreen" class="screen">
+  <header class="app-header">
+    <div class="hdr-brand">
+      <div class="hdr-icon">🌍</div>
+      <div>
+        <h1>Riwayat Nilai</h1>
+        <p>SMA · 2025/2026</p>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <button class="btn-secondary" onclick="showForm()">← Kembali</button>
+    </div>
+  </header>
+  <div class="main-wrap">
+    <div class="page-title">
+      <h2>Riwayat Nilai</h2>
+    </div>
+    <div class="sec-card" style="margin-top:28px;">
+      <div class="sec-title">
+        <div class="sec-icon">📊</div>
+        <span>Riwayat Nilai Saya</span>
+        <div class="sec-line"></div>
+      </div>
+      <!-- statistik ringkas -->
+      <div id="statsArea" class="stats">
+        <p>Jumlah nilai: <span id="countVal">0</span></p>
+        <p>Rata-rata: <span id="avgVal">–</span></p>
+        <p><span id="passLabel">Tuntas (≥70):</span> <span id="passCount">0</span></p>
+        <p>Tidak tuntas: <span id="failCount">0</span></p>
+      </div>
+      <div class="table-wrap">
+        <table>
           <thead>
-            <tr><th>Huruf</th><th>Angka</th><th>Keterangan</th></tr>
+            <tr>
+              <th>No</th>
+              <th>Bentuk Tugas</th>
+              <th>Angka</th>
+              <th>Huruf</th>
+              <th>Bukti</th>
+            </tr>
           </thead>
-          <tbody id="criteria-tbody"></tbody>
+          <tbody id="nilaiBody">
+            <tr><td colspan="5" class="load-row"><span class="spin"></span>Memuat data…</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
-
-    <!-- Foto Bukti -->
-    <div class="card">
-      <div class="card-title">Foto Bukti</div>
-      <div class="photo-upload" id="photo-upload-area">
-        <input type="file" id="foto-input" accept="image/*" onchange="onPhotoChange()">
-        <div class="upload-icon">📷</div>
-        <div class="upload-text">
-          <strong>Klik untuk upload</strong> atau seret foto ke sini<br>
-          <small>JPG, PNG, WEBP · Maks. 10MB</small>
-        </div>
-        <div class="photo-name" id="photo-name"></div>
-        <div class="photo-preview" id="photo-preview">
-          <img id="preview-img" src="" alt="Preview">
-        </div>
-      </div>
-    </div>
-
-    <!-- Submit -->
-    <div class="submit-area">
-      <button class="btn-submit" onclick="doSubmit()">Kirim Nilai ✓</button>
-    </div>
-
-    <!-- Data Rekap -->
-    <div class="data-section">
-      <div class="card" style="padding:1.5rem">
-        <div class="data-header">
-          <h4>📋 Rekap Data Nilai <span class="count-badge" id="data-count">0</span></h4>
-          <button class="btn-download" id="btn-download" onclick="downloadExcel()" disabled>
-            ⬇ Unduh Excel (.xlsx)
-          </button>
-        </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>NISN</th>
-                <th>Nama</th>
-                <th>Kelas</th>
-                <th>Bentuk Tugas</th>
-                <th>Nilai Angka</th>
-                <th>Nilai Huruf</th>
-                <th>Bukti</th>
-              </tr>
-            </thead>
-            <tbody id="data-tbody">
-              <tr>
-                <td colspan="8">
-                  <div class="empty-state">
-                    <div class="empty-icon">📭</div>
-                    Belum ada data yang diinput
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
-<!-- Modal -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal">
-    <!-- Loading state -->
-    <div id="modal-loading" style="display:none; text-align:center">
-      <div style="font-size:2.5rem; margin-bottom:1rem; animation:spin 1s linear infinite; display:inline-block">⏳</div>
-      <h3 style="margin-bottom:0.5rem">Mengirim Data...</h3>
-      <p style="color:var(--muted)">Sedang menyimpan ke Google Sheets</p>
+<!-- ═══════════════════════════════════════════
+     MODAL
+════════════════════════════════════════════ -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal-box">
+    <div class="modal-check">✓</div>
+    <h2 class="modal-title">Nilai Terkirim!</h2>
+    <p class="modal-sub" id="modalStatus">Data berhasil dikirim ke Pak Imron...</p>
+    <img id="modalMip" class="modal-mip" alt="Bukti">
+    <div class="modal-rows">
+      <div class="modal-row"><span class="mr-k">Nama</span><span class="mr-v" id="mN">—</span></div>
+      <div class="modal-row"><span class="mr-k">Kelas</span><span class="mr-v" id="mK">—</span></div>
+      <div class="modal-row"><span class="mr-k">Tugas</span><span class="mr-v" id="mT">—</span></div>
+      <div class="modal-row"><span class="mr-k">Nilai Angka</span><span class="mr-v" id="mA">—</span></div>
+      <div class="modal-row"><span class="mr-k">Nilai Huruf</span><span class="mr-v" id="mH">—</span></div>
     </div>
-    <!-- Success state -->
-    <div id="modal-success" style="display:none">
-      <div class="success-icon">✓</div>
-      <h3>Nilai Berhasil Dikirim!</h3>
-      <p>Data tersimpan di Google Sheets.</p>
-      <div class="modal-detail" id="modal-detail"></div>
-      <a id="sheet-link" href="https://docs.google.com/spreadsheets/d/1JUA5B5hWPOKi3r9RMs3sLYQGs-xINwZq7tPyjLVgz5Y/edit" target="_blank"
-         style="display:inline-block;margin-bottom:1rem;font-size:0.82rem;color:var(--accent2);text-decoration:underline;text-underline-offset:3px">
-        🔗 Lihat Google Sheets
-      </a><br>
-      <button class="btn btn-primary" onclick="closeModal()" style="margin-top:0">Kembali ke Form</button>
-    </div>
-    <!-- Error state -->
-    <div id="modal-error" style="display:none; text-align:center">
-      <div style="font-size:2.5rem; margin-bottom:1rem">⚠️</div>
-      <h3 style="margin-bottom:0.5rem; color:#fca5a5">Gagal Mengirim</h3>
-      <p style="color:var(--muted); margin-bottom:0.75rem" id="modal-error-msg">Terjadi kesalahan koneksi.</p>
-      <p style="font-size:0.78rem; color:var(--muted); margin-bottom:1.25rem">
-        Pastikan URL Apps Script sudah diisi dengan benar di variabel <code style="background:var(--surface2);padding:0.1rem 0.3rem;border-radius:3px">APPS_SCRIPT_URL</code>.
-      </p>
-      <div style="display:flex;gap:0.75rem">
-        <button class="btn" onclick="closeModal()" style="flex:1;background:var(--surface2);color:var(--muted);border:1px solid var(--border)">Tutup</button>
-        <button class="btn btn-primary" onclick="retrySend()" style="flex:1">Coba Lagi</button>
-      </div>
-    </div>
+    <button class="btn-primary" onclick="closeModal()" style="max-width:260px;margin:0 auto;display:block;">Input Nilai Lain</button>
   </div>
 </div>
 
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLb()">
+  <div class="lb-close">×</div>
+  <img id="lbImg" src="" alt="">
+</div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
 <script>
-// ===== DATA SISWA =====
-const SISWA = [
-  { nisn: "0097758369", nama: "AIRA PUTRI OKTAVIANI", kelas: "X 1" },
-  { nisn: "0097931054", nama: "AIRISH BILAL NABAWI", kelas: "X 1" },
-  { nisn: "0093693520", nama: "ALDHO JUNADIL ILHAM", kelas: "X 1" },
-  { nisn: "0103307505", nama: "ALICIA PUTRI DEVINIRA", kelas: "X 1" },
-  { nisn: "0102108205", nama: "ANNISA NUR SYIFA", kelas: "X 1" },
-  { nisn: "0102371225", nama: "ARYA BHIMA SUTANARENDRA HADIUSODO", kelas: "X 1" },
-  { nisn: "0094238385", nama: "AYRA DIAH AGNESA", kelas: "X 1" },
-  { nisn: "0105461165", nama: "AZHAR HIDAYAT DHARMA ATMOKO", kelas: "X 1" },
-  { nisn: "0097206174", nama: "CAHYA KAMILA", kelas: "X 1" },
-  { nisn: "0095735226", nama: "CARISSA ARUNI WIDYADHANA", kelas: "X 1" },
-  { nisn: "0101727711", nama: "CHESTA KAYNA MOZABI", kelas: "X 1" },
-  { nisn: "0099748269", nama: "DIKA PERMANA", kelas: "X 1" },
-  { nisn: "0098744140", nama: "FANIA RAHMALIA", kelas: "X 1" },
-];
+/* ══ CONFIG ══
+   Isi GAS_URL dengan URL hasil deploy Apps Script (Code.gs).
+   Satu URL ini dipakai untuk KIRIM data (POST) dan BACA riwayat (GET).
+   Spreadsheet TIDAK perlu dipublikasikan — Apps Script yang mengaksesnya.
+   ══════════════════════════════════════════════════════════════════ */
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwfI-5bh90eWinV4yPjXw5xtRqT2eMRA6zlcHhHPQ6Xcl9SpoCFi8Cax9cXTe4EnLlADQ/exec";
 
-// ===== KRITERIA NILAI =====
-const KRITERIA = [
-  { huruf: "A++", angka: 100, min: 100, max: 100, color: "#10b981" },
-  { huruf: "A+",  angka: 98,  min: 98,  max: 99,  color: "#10b981" },
-  { huruf: "A",   angka: 95,  min: 95,  max: 97,  color: "#10b981" },
-  { huruf: "A-",  angka: 90,  min: 90,  max: 94,  color: "#34d399" },
-  { huruf: "B+",  angka: 88,  min: 88,  max: 89,  color: "#3b82f6" },
-  { huruf: "B",   angka: 85,  min: 85,  max: 87,  color: "#3b82f6" },
-  { huruf: "B-",  angka: 81,  min: 81,  max: 84,  color: "#60a5fa" },
-  { huruf: "C+",  angka: 79,  min: 79,  max: 80,  color: "#f59e0b" },
-  { huruf: "C",   angka: 75,  min: 75,  max: 78,  color: "#f59e0b" },
-  { huruf: "C-",  angka: 70,  min: 70,  max: 74,  color: "#fbbf24" },
-  { huruf: "D",   angka: 65,  min: 65,  max: 69,  color: "#f97316" },
-  { huruf: "E",   angka: 0,   min: 0,   max: 49,  color: "#ef4444" },
-];
-
-const HURUF_TO_ANGKA = {
-  "A++": 100, "A+": 98, "A": 95, "A-": 90,
-  "B+": 88, "B": 85, "B-": 81,
-  "C+": 79, "C": 75, "C-": 70,
-  "D": 65, "E": 0
+/* ══ STUDENT DATA ══ */
+const STUDENTS = {
+  "0097758369": { name:"AIRA PUTRI OKTAVIANI",              kelas:"X 1" },
+  "0097931054": { name:"AIRISH BILAL NABAWI",               kelas:"X 1" },
+  "0093693520": { name:"ALDHO JUNADIL ILHAM",               kelas:"X 1" },
+  "0103307505": { name:"ALICIA PUTRI DEVINIRA",             kelas:"X 1" },
+  "0102108205": { name:"ANNISA NUR SYIFA",                  kelas:"X 1" },
+  "0102371225": { name:"ARYA BHIMA SUTANARENDRA HADIUSODO", kelas:"X 1" },
+  "0094238385": { name:"AYRA DIAH AGNESA",                  kelas:"X 1" },
+  "0105461165": { name:"AZHAR HIDAYAT DHARMA ATMOKO",       kelas:"X 1" },
+  "0097206174": { name:"CAHYA KAMILA",                      kelas:"X 1" },
+  "0095735226": { name:"CARISSA ARUNI WIDYADHANA",          kelas:"X 1" },
+  "0101727711": { name:"CHESTA KAYNA MOZABI",               kelas:"X 1" },
+  "0099748269": { name:"DIKA PERMANA",                      kelas:"X 1" },
+  "0098744140": { name:"FANIA RAHMALIA",                    kelas:"X 1" },
+  "0096547231": { name:"FARELL ABYANSYAH",                  kelas:"X 1" },
+  "0091486788": { name:"FATIMAH AZARIA",                    kelas:"X 1" },
+  "0094064577": { name:"KAYSA AYUDYA FIQQI",                kelas:"X 1" },
+  "3095959925": { name:"MUCHAMMAD FATIR RISTANDY",          kelas:"X 1" },
+  "0094311032": { name:"MUHAMAD ARYA DWIYANTO",             kelas:"X 1" },
+  "3090453929": { name:"MUHAMMAD FIRDAUS FASYA",            kelas:"X 1" },
+  "0102362324": { name:"NAIFAH UMAIROH PUTRI",              kelas:"X 1" },
+  "0107806883": { name:"NATASYA HAFIZHAH SALSABILA",        kelas:"X 1" },
+  "0097087570": { name:"NAYSHYA NURHAFIZAH",                kelas:"X 1" },
+  "0109362636": { name:"RAFA ARDIYANSAH",                   kelas:"X 1" },
+  "3094988596": { name:"RAFAEL AGUERO HARYANTO",            kelas:"X 1" },
+  "0104434585": { name:"RAFFI ALVINO",                      kelas:"X 1" },
+  "0103753613": { name:"RASMANA PUTRA",                     kelas:"X 1" },
+  "0106446196": { name:"RENATTA NADIA ANAK PERMANA",        kelas:"X 1" },
+  "0093309540": { name:"RIZKY YUGO RAMADHAN",               kelas:"X 1" },
+  "0095353888": { name:"SA'DATAIN AINUN FAJRIAH",           kelas:"X 1" },
+  "0102264279": { name:"SAHJAH SAKILAH DINIA",              kelas:"X 1" },
+  "0098999904": { name:"THALITA ROSIANA SAPUTRO",           kelas:"X 1" },
+  "0099411978": { name:"ZAKARIA BARI BIAN SAMUDRA",         kelas:"X 1" },
+  "0102625660": { name:"ABBYGAIL ANASTASYA RANTEALANG",     kelas:"X 2" },
+  "0091558523": { name:"ABISTA PUTRATAMA GUNAWAN",          kelas:"X 2" },
+  "0099168381": { name:"ALISYA SYORS WIJAYA",               kelas:"X 2" },
+  "0107760969": { name:"ALIYAH MALSA' NAFIAH",              kelas:"X 2" },
+  "0087568314": { name:"ALVIN FAIZ ADITYA",                 kelas:"X 2" },
+  "0167150180": { name:"ANINDYA KHALISAH PUTRI",            kelas:"X 2" },
+  "0099444906": { name:"ATAYA KEANDRE PUTRA",               kelas:"X 2" },
+  "3107367993": { name:"ATHAR CAKRA FAEYZA",                kelas:"X 2" },
+  "0097093809": { name:"AZKI ALFIKRA",                      kelas:"X 2" },
+  "0109449845": { name:"BAGAS ADI SAPUTRA",                 kelas:"X 2" },
+  "0094211904": { name:"CAMELLIA PUTRI SABINA",             kelas:"X 2" },
+  "0096962983": { name:"CIARA LARAS HARWANTO",              kelas:"X 2" },
+  "0097253265": { name:"CYANARA ARETHA PUTRIANTO",                    kelas:"X 2" },
+  "0106492133": { name:"DARA AVIRA SHANALIA",                    kelas:"X 2" },
+  "0095612535": { name:"DIMITRY GALANG ARCHIECO TIMOTHY SIMAMORA",                    kelas:"X 2" },
+  "0098746677": { name:"FAUZAN MUNIF RAMADHAN",                    kelas:"X 2" },
+  "0107642273": { name:"FEBY WIJAYA PUTRI",                    kelas:"X 2" },
+  "0093244375": { name:"GHUMAISHA AZKA ALVIENA",                    kelas:"X 2" },
+  "0102000716": { name:"MARITZA ALIFIA BACHFEN",                    kelas:"X 2" },
+  "0099040179": { name:"MAUZA AYU NOVITA",                    kelas:"X 2" },
+  "0103602951": { name:"MEIRA NUR AZIZAH",                    kelas:"X 2" },
+  "0099028840": { name:"MUHAMAD ROBBY TRIANANTA",                    kelas:"X 2" },
+  "0092483713": { name:"MUHAMMAD RIDHO EVIN",                    kelas:"X 2" },
+  "0099834656": { name:"NAURA RANA NADHIFA",                    kelas:"X 2" },
+  "0096407052": { name:"RAHARDIAN GIRINDRA WARDANA",                    kelas:"X 2" },
+  "0108919337": { name:"RAIZ BRILLIANTAMA",                    kelas:"X 2" },
+  "0094416493": { name:"RASYAH RESKY ADITYA ALHARUN",                    kelas:"X 2" },
+  "0097976235": { name:"RHENITA APRILIA",                    kelas:"X 2" },
+  "0096453236": { name:"SALSYABILA FITRI SAFIRA",                    kelas:"X 2" },
+  "0096448036": { name:"SHAIRA RAMADHANI",                    kelas:"X 2" },
+  "0093701906": { name:"SYAFA DWI ARIANI",                    kelas:"X 2" },
+  "0101396427": { name:"THIARA MUTMAINAH FIKRI",                    kelas:"X 2" },
+  "0095314769": { name:"TITO PUTRA LESTIYANTO",                    kelas:"X 2" },
+  "0099988225": { name:"TSAMARA AZKA ANINDITA",                    kelas:"X 2" },
+  "0092211429": { name:"ABDULHAFIZ FADLAN ATORI",                    kelas:"X 3" },
+  "0108041760": { name:"AFIF AHMAD",                    kelas:"X 3" },
+  "0103251329": { name:"AISYAH ANAIA SANTOSO",                    kelas:"X 3" },
+  "0109242075": { name:"ALMIRA DZAKIYAH THALITA SAKHI",                    kelas:"X 3" },
+  "0108071652": { name:"ALYSSA PUTRI KAUTSAR",                    kelas:"X 3" },
+  "0091591105": { name:"AMAR RIZQY",                    kelas:"X 3" },
+  "0093725431": { name:"ANJANI NUR FATMAWATI",                    kelas:"X 3" },
+  "0095588484": { name:"AURELIA CAHYA RAMADHANI",                    kelas:"X 3" },
+  "0098010850": { name:"BAGUS ARYO SENO",                    kelas:"X 3" },
+  "0104329848": { name:"BHANU SIKARA SAHASRADASA",                    kelas:"X 3" },
+  "0108122400": { name:"CATUR TEGUH SYAHBANA",                    kelas:"X 3" },
+  "3108371114": { name:"CITRA AMIRAH PUTRI",                    kelas:"X 3" },
+  "0109722014": { name:"DAVINA SALSABILLA ITSAR",                    kelas:"X 3" },
+  "3107517403": { name:"DELICIA ATHAYA ZAINA",                    kelas:"X 3" },
+  "0103665889": { name:"FAHISHA RAHMADHITA",                    kelas:"X 3" },
+  "0091779583": { name:"FARIZ YUSUF",                    kelas:"X 3" },
+  "0092029602": { name:"FIDELIA'AAQILAH RISTA",                    kelas:"X 3" },
+  "0101502053": { name:"GLADIZA KEILA PUTRI MODJO",                    kelas:"X 3" },
+  "0096337476": { name:"HABIBULLAH ASSYAUQI",                    kelas:"X 3" },
+  "0099724818": { name:"MARSYANDA AURELIA PEPPY",                    kelas:"X 3" },
+  "0108477368": { name:"MILINKA PUTRI ALETHA RACHMAN",                    kelas:"X 3" },
+  "0091287841": { name:"MUHAMAD RASYA HIDAYAH",                    kelas:"X 3" },
+  "0091376116": { name:"MUHAMMAD NUR ARIF RAMADHAN",                    kelas:"X 3" },
+  "0099805128": { name:"MUHAMMAD RASYA ABIDZAR ARKANANTA",                    kelas:"X 3" },
+  "3092143664": { name:"MUHAMMAD ZAKHWAN ALFATHAH",                    kelas:"X 3" },
+  "0087798529": { name:"NADYA PUSPITA ANGGRAENI",                    kelas:"X 3" },
+  "0107513403": { name:"NAURA SOFIATUL NADHIFA",                    kelas:"X 3" },
+  "0098426051": { name:"RAHEL FAHRIZA MANSUR",                    kelas:"X 3" },
+  "0106344566": { name:"RIDHO PRASETYO",                    kelas:"X 3" },
+  "0097921499": { name:"RISELLA AFIANTY",                    kelas:"X 3" },
+  "0099805667": { name:"SALSABILA ZAHRAN",                    kelas:"X 3" },
+  "0105588499": { name:"SHEREEN NATHANIA",                    kelas:"X 3" },
+  "0102688254": { name:"TANTRA ARDELIA BERNADINE",                    kelas:"X 3" },
+  "0093051480": { name:"VANESA QOTRUN NADA",                    kelas:"X 3" },
+  "0108496095": { name:"YASMINE FITRIA AZZAHRA",                    kelas:"X 3" },
+  "0099029847": { name:"AHMAD ARGA FAIRUS",                    kelas:"X 4" },
+  "0091307556": { name:"ALANA TSAMARA IWAN",                    kelas:"X 4" },
+  "0093712556": { name:"ALIF RASYDAN ATHALLAH",                    kelas:"X 4" },
+  "0109922111": { name:"ALYA GENDISPUTRI DESTIAN",                    kelas:"X 4" },
+  "0095481451": { name:"ANDIRA AURELYA",                    kelas:"X 4" },
+  "0091607323": { name:"ANNISA NURDIYANTI",                    kelas:"X 4" },
+  "0102955222": { name:"ARDIKA PUTRA TRISTIAN",                    kelas:"X 4" },
+  "0094531604": { name:"AYESHA PUTRI SAHIRA",                    kelas:"X 4" },
+  "0098848140": { name:"BRIAN SAPUTRA",                    kelas:"X 4" },
+  "0104081660": { name:"DAFFA IRFANTO",                    kelas:"X 4" },
+  "0099220871": { name:"DEWI PARAMITHA",                    kelas:"X 4" },
+  "0093974023": { name:"DHEA AINNUR PUTRI",                    kelas:"X 4" },
+  "0099448254": { name:"DIANDRA SEKAR ARUM",                    kelas:"X 4" },
+  "0114954287": { name:"FAIRUZ IZDIHAR QURATA'AIN",                    kelas:"X 4" },
+  "0099608532": { name:"FRISKA NATASIA",                    kelas:"X 4" },
+  "0093306639": { name:"GHAIDA KHAIRUNNISA",                    kelas:"X 4" },
+  "0107046320": { name:"HAFIDZ RAFI' RABBANI",                    kelas:"X 4" },
+  "0096667174": { name:"KARIMA NAILA ZAKIYAH",                    kelas:"X 4" },
+  "0108630391": { name:"MIRACLE JASMINE",                    kelas:"X 4" },
+  "0094286368": { name:"MUHAMAD RIZKI",                    kelas:"X 4" },
+  "0101736596": { name:"MUHAMMAD RAFA HEROKU",                    kelas:"X 4" },
+  "0109926660": { name:"MUHAMMAD ZACHRON ARAFI KWINTO",                    kelas:"X 4" },
+  "0097628186": { name:"MUHAMMAD ZIKRI ALGIFARI",                    kelas:"X 4" },
+  "0106603503": { name:"NATASYA DWI SISWANTI",                    kelas:"X 4" },
+  "0095660229": { name:"NAZWA CINTA CHAIRUNNISA",                    kelas:"X 4" },
+  "3100104031": { name:"NAZWA KEYLA VERLITA",                    kelas:"X 4" },
+  "0092827034": { name:"RAKA PANDAWA SAPUTRA",                    kelas:"X 4" },
+  "0094436409": { name:"RAYMONDUS HORAS HUTAURUK",                    kelas:"X 4" },
+  "0101841546": { name:"RIVALDY AL-GHOFARI",                    kelas:"X 4" },
+  "0094719033": { name:"SALZA ANGGRAENI",                    kelas:"X 4" },
+  "0103534846": { name:"SEKAR AYUANDITA",                    kelas:"X 4" },
+  "3104695496": { name:"WISYA RAZQIYAH MAHIRA",                    kelas:"X 4" },
+  "0097678115": { name:"ZAHRA HANIFAH",                    kelas:"X 4" },
+  "0094988219": { name:"ALFHAN SYAFA",                    kelas:"X 5" },
+  "0095952879": { name:"ALIKA NOVI FAJRINA HERMANTO",                    kelas:"X 5" },
+  "0094079410": { name:"AMANDA CANTIKA KHAIRUNNISA",                    kelas:"X 5" },
+  "0106868406": { name:"AQILLA ZARA NAFISA",                    kelas:"X 5" },
+  "0098776918": { name:"ARIQA FATINA NAILA",                    kelas:"X 5" },
+  "0104988315": { name:"AZKA ANINDIA",                    kelas:"X 5" },
+  "3093428531": { name:"AZZIKRI",                    kelas:"X 5" },
+  "0096093993": { name:"DEWANGGA PUTRA",                    kelas:"X 5" },
+  "0091456719": { name:"DIAH RAHMAH KURNIASARI",                    kelas:"X 5" },
+  "0104468753": { name:"DITA AYU LESTARI",                    kelas:"X 5" },
+  "0105542388": { name:"GISARINA HANUM PUTRI",                    kelas:"X 5" },
+  "3100482770": { name:"HAFIZH ROHADI PRATAMA",                    kelas:"X 5" },
+  "0094651348": { name:"HANAFI RADHITYA FATIN",                    kelas:"X 5" },
+  "0105833180": { name:"HASYIFA SETIAWAN",                    kelas:"X 5" },
+  "0106998585": { name:"HAURA AZ-ZAHRA",                    kelas:"X 5" },
+  "3105215725": { name:"HERU RUKMANA",                    kelas:"X 5" },
+  "0102189547": { name:"IBNU AHMAD ADLI SAFA",                    kelas:"X 5" },
+  "0093602226": { name:"KAYLA RIZKY AMALIA",                    kelas:"X 5" },
+  "0097387466": { name:"MUHAMAD FAKHRIZAL AMANSYAHRONI",                    kelas:"X 5" },
+  "3104345907": { name:"MUHAMMAD AULIA NIBRAS",                    kelas:"X 5" },
+  "0091934350": { name:"MUHAMMAD SAKHIY EL AZZAM",                    kelas:"X 5" },
+  "0107831153": { name:"NABILA MAHARANI",                    kelas:"X 5" },
+  "0105870031": { name:"NADHIRAH AHWANDJI",                    kelas:"X 5" },
+  "0096891264": { name:"NAZWA AULIA",                    kelas:"X 5" },
+  "0098733440": { name:"NURSUTA MUSTAQIM",                    kelas:"X 5" },
+  "0099869188": { name:"PRITALINCH OCTAVIANI",                    kelas:"X 5" },
+  "0101485234": { name:"QUINSHA AULIA RAHMANITA",                    kelas:"X 5" },
+  "0096360292": { name:"RAMA PAGI RAMADHAN",                    kelas:"X 5" },
+  "0092706569": { name:"RIZKY FAZRI RAMADHAN",                    kelas:"X 5" },
+  "0101655068": { name:"SHAFIYYAH DEEVASHA MUMTAZ",                    kelas:"X 5" },
+  "0091085763": { name:"SITI KHADIJAH AL MUNAWAROH",                    kelas:"X 5" },
+  "0109793398": { name:"VINA BILQIS",                    kelas:"X 5" },
+  "0109541186": { name:"VINCENTIUS KEVIN GILANG WIBOWO",                    kelas:"X 5" },
+  "3097050131": { name:"ZAHID ABDURROSYID",                    kelas:"X 5" },
+  "0097941844": { name:"ZAHRO EKA KURNIAWATI",                    kelas:"X 5" },
 };
 
-// ===== TUGAS PER KELAS =====
-const TUGAS_PER_KELAS = {
-  "X": [
-    { value: "Tugas 1 - Catatan Dinamika Litosfer",   label: "Tugas 1 · Catatan Dinamika Litosfer" },
-    { value: "Tugas 2 - Contoh Akibat Tektonisme",    label: "Tugas 2 · Contoh Akibat Tektonisme" },
-    { value: "Tugas 3 - Sumatif Harian 1 Litosfer",   label: "Tugas 3 · Sumatif Harian 1 Litosfer" },
+const TASKS = {
+  X: [
+    "Tugas 1 Catatan Dinamika Litosfer",
+    "Tugas 2 Contoh Hasil Peristiwa Tektonisme",
+    "Tugas 3 Menganalisis gambar Bentuk dan Tipe Letusan Gunung Api",
+    "Tugas 4 Menghitung Episenter Jarak Gempa",
+    "Tugas 5 Sumatif Harian Litosfer",
   ],
-  "XII": [
-    { value: "Tugas 1 - Catatan Kerjasama Antarnegara",          label: "Tugas 1 · Catatan Kerjasama Antarnegara" },
-    { value: "Tugas 2 - Sumatif Paradigma Kerjasama",            label: "Tugas 2 · Sumatif Paradigma Kerjasama" },
-    { value: "Tugas 3 - Slide PPT Bentuk Kerjasama Antarnegara", label: "Tugas 3 · Slide PPT Bentuk Kerjasama Antarnegara" },
-  ],
+  XII: [
+    "Tugas 1 Catatan Kerjasama Antarnegara",
+    "Tugas 2 Sumatif Paradigma Kerjasama",
+    "Tugas 3 Slide PPT Bantuk Kerjasama Antarnegara",
+    "Tugas 4 Penampilan Presentase Bentuk Kerjasama Antarnegara",
+    "Tugas 5 Respons Diskusi",
+    "Tugas 6 Latihan Soal PG",
+    "Sumatif Kerjasama Antarnegara",
+  ]
 };
 
-function getKelasGroup(kelas) {
-  // e.g. "X 1" → "X", "XII 3" → "XII"
-  const m = kelas.trim().match(/^(XII|XI|X|IX|VIII|VII)/i);
-  return m ? m[1].toUpperCase() : null;
-}
+const SCALE = [
+  {l:"A++",a:100,mn:100,mx:100}, {l:"A+",a:98,mn:98,mx:99},
+  {l:"A",  a:95, mn:91, mx:97},  {l:"A-",a:90,mn:90,mx:90},
+  {l:"B+", a:88, mn:88, mx:89},  {l:"B", a:85,mn:82,mx:87},
+  {l:"B-", a:81, mn:81, mx:81},  {l:"C+",a:79,mn:79,mx:80},
+  {l:"C",  a:75, mn:71, mx:78},  {l:"C-",a:70,mn:70,mx:70},
+  {l:"D",  a:65, mn:50, mx:69},  {l:"E", a:50,mn:0, mx:49},
+];
 
-function populateTugas(kelas) {
-  const group = getKelasGroup(kelas);
-  const select = document.getElementById('bentuk-tugas');
-  select.innerHTML = '<option value="">— Pilih Bentuk Tugas —</option>';
-  const list = TUGAS_PER_KELAS[group] || [];
-  list.forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t.value;
-    opt.textContent = t.label;
-    select.appendChild(opt);
-  });
-  // Update kelas badge
-  document.getElementById('kelas-label').textContent = 'Kelas ' + kelas;
-  document.getElementById('topbar-kelas').textContent = 'Kelas ' + kelas + ' · Semester Aktif';
-}
+/* ══ STATE ══ */
+let user = null, angka = null, huruf = null, fotoB64 = null;
 
-// ===== KONFIGURASI — isi URL Apps Script setelah deploy =====
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4oTAHY9Vlxfpqm2O0y2UZzo7zSz-1zz3jZkD23WzAuu9Tc623nozRSLRxNc55e20/exec';
-
-let currentUser = null;
-let inputMode = 'angka';
-let nilaiDB = []; // in-memory data store
-let pendingPhotoBase64 = null; // stores photo as base64 for table preview
-
-// ===== BUILD CRITERIA TABLE =====
-function buildCriteria() {
-  const tbody = document.getElementById('criteria-tbody');
-  tbody.innerHTML = KRITERIA.map(k => `
-    <tr>
-      <td><span class="letter-pill" style="background:${k.color}22;color:${k.color}">${k.huruf}</span></td>
-      <td style="font-weight:600">${k.angka}</td>
-      <td style="color:var(--muted);font-size:0.78rem">${k.huruf==='E' ? '< 50' : k.min===k.max ? k.min : k.min+'–'+k.max}</td>
-    </tr>
-  `).join('');
-}
-
-function toggleCriteria() {
-  const wrap = document.getElementById('criteria-wrap');
-  wrap.style.display = wrap.style.display === 'block' ? 'none' : 'block';
-}
-
-// ===== LOGIN =====
-function doLogin() {
-  const nisn = document.getElementById('nisn-input').value.trim();
-  const errEl = document.getElementById('login-error');
-  const found = SISWA.find(s => s.nisn === nisn);
-  if (!found) {
-    errEl.style.display = 'block';
-    document.getElementById('nisn-input').style.borderColor = 'var(--red)';
-    return;
+/* ══ INIT ══ */
+(function init(){
+  if (GAS_URL && GAS_URL.startsWith('https://script.google.com')) {
+    document.getElementById('gasDot').className = 'gas-dot ok';
+    document.getElementById('gasText').textContent = 'Database: Terhubung ✓';
   }
-  errEl.style.display = 'none';
-  currentUser = found;
-  showApp();
+})();
+
+/* ══ NISN LOOKUP — toleran terhadap leading zeros ══ */
+function findStudent(raw) {
+  raw = raw.trim();
+  if (STUDENTS[raw]) return { nisn: raw, ...STUDENTS[raw] };
+  const padded = raw.padStart(10, '0');
+  if (STUDENTS[padded]) return { nisn: padded, ...STUDENTS[padded] };
+  const stripped = raw.replace(/^0+/, '');
+  const key = Object.keys(STUDENTS).find(k => k.replace(/^0+/, '') === stripped);
+  return key ? { nisn: key, ...STUDENTS[key] } : null;
 }
+
+/* ══ LOGIN ══ */
+function doLogin() {
+  const raw = document.getElementById('nisnInput').value;
+  const found = findStudent(raw);
+  const inp = document.getElementById('nisnInput');
+  const err = document.getElementById('nisnErr');
+  if (found) {
+    user = found;
+    inp.classList.remove('err'); err.classList.remove('show');
+    showApp();
+  } else {
+    inp.classList.add('err'); err.classList.add('show'); inp.focus();
+  }
+}
+document.getElementById('nisnInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
 function showApp() {
-  document.getElementById('login-page').style.display = 'none';
-  document.getElementById('app-page').style.display = 'block';
-  document.getElementById('user-name').textContent = currentUser.nama;
-  document.getElementById('user-nisn').textContent = 'NISN: ' + currentUser.nisn;
-  document.getElementById('user-avatar').textContent = currentUser.nama.charAt(0);
-  populateTugas(currentUser.kelas);
-  resetForm();
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+  document.getElementById('hdrName').textContent = user.name;
+  document.getElementById('hdrKelas').textContent = 'Kelas ' + user.kelas;
+  document.getElementById('pageSub').textContent = 'Halo, ' + titleCase(user.name) + ' — silakan isi nilai tugasmu.';
+  const kk = user.kelas === 'X' ? 'XI' : 'XII';
+  document.getElementById('kelasSelect').value = kk;
+  onKelasChange();
+}
+
+// ══ NAVIGATION between form and history pages
+function showHistory() {
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('historyScreen').classList.add('active');
+  const btn = document.getElementById('btnRiwayat');
+  if (btn) btn.style.display = 'none';
+  loadNilai();
+}
+function showForm() {
+  document.getElementById('historyScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+  const btn = document.getElementById('btnRiwayat');
+  if (btn) btn.style.display = 'block';
 }
 
 function doLogout() {
-  currentUser = null;
-  document.getElementById('login-page').style.display = 'flex';
-  document.getElementById('app-page').style.display = 'none';
-  document.getElementById('nisn-input').value = '';
-  document.getElementById('nisn-input').style.borderColor = '';
+  user = null; angka = null; huruf = null; fotoB64 = null;
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('nisnInput').value = '';
+  document.getElementById('nisnInput').classList.remove('err');
+  document.getElementById('nisnErr').classList.remove('show');
+  resetForm();
 }
 
-// ===== MODE TOGGLE =====
-function setMode(mode) {
-  inputMode = mode;
-  document.getElementById('btn-angka').classList.toggle('active', mode === 'angka');
-  document.getElementById('btn-huruf').classList.toggle('active', mode === 'huruf');
-
-  const angkaInput = document.getElementById('nilai-angka').parentElement;
-  const hurufRow = document.getElementById('huruf-input-wrap');
-  const hurufDisplay = document.getElementById('huruf-display');
-
-  if (mode === 'angka') {
-    angkaInput.style.display = '';
-    hurufRow.style.display = 'none';
-    // Show huruf display next to angka input
-    document.querySelector('.grade-row').style.display = 'grid';
-    hurufDisplay.parentElement.style.display = '';
-    document.getElementById('nilai-angka').value = '';
-    setHurufDisplay('', '');
-  } else {
-    angkaInput.style.display = 'none';
-    hurufDisplay.parentElement.style.display = 'none';
-    document.querySelector('.grade-row').style.display = 'none';
-    hurufRow.style.display = 'block';
-    document.getElementById('nilai-huruf-select').value = '';
-    setAngkaDisplay('');
-  }
+/* ══ KELAS → TUGAS ══ */
+function onKelasChange() {
+  const k = document.getElementById('kelasSelect').value;
+  const sel = document.getElementById('tugasSelect');
+  sel.innerHTML = '<option value="">— Pilih tugas —</option>';
+  if (!k) { sel.disabled = true; return; }
+  sel.disabled = false;
+  (TASKS[k] || []).forEach(t => {
+    const o = document.createElement('option');
+    o.value = t; o.textContent = t; sel.appendChild(o);
+  });
 }
 
-function getHuruf(angka) {
-  const v = parseInt(angka);
-  if (isNaN(v)) return null;
-  if (v === 100) return "A++";
-  if (v >= 98) return "A+";
-  if (v >= 95) return "A";
-  if (v >= 90) return "A-";
-  if (v >= 88) return "B+";
-  if (v >= 85) return "B";
-  if (v >= 81) return "B-";
-  if (v >= 79) return "C+";
-  if (v >= 75) return "C";
-  if (v >= 70) return "C-";
-  if (v >= 65) return "D";
-  if (v < 50) return "E";
-  return null;
+/* ══ GRADE SYNC ══ */
+function a2h(n) { for (const g of SCALE) if (n >= g.mn && n <= g.mx) return g.l; return 'E'; }
+function h2a(l) { const g = SCALE.find(x => x.l === l); return g ? g.a : null; }
+
+function updatePreview() {
+  document.getElementById('pvAngka').textContent = angka != null ? angka : '—';
+  document.getElementById('pvHuruf').textContent = huruf || '—';
 }
 
-function getColor(huruf) {
-  const k = KRITERIA.find(x => x.huruf === huruf);
-  return k ? k.color : '#64748b';
-}
-
-function setHurufDisplay(huruf, color) {
-  const el = document.getElementById('huruf-display');
-  if (!huruf) {
-    el.innerHTML = '<span style="font-size:0.8rem">— otomatis terisi —</span>';
-    el.className = 'grade-display';
-  } else {
-    el.innerHTML = `<span class="grade-badge" style="background:linear-gradient(135deg,${color},${color}bb)">${huruf}</span>`;
-    el.className = 'grade-display filled';
-  }
-}
-
-function setAngkaDisplay(angka) {
-  const el = document.getElementById('angka-display');
-  if (!angka && angka !== 0) {
-    el.innerHTML = '<span style="font-size:0.8rem">— otomatis terisi —</span>';
-    el.className = 'grade-display';
-  } else {
-    el.innerHTML = `<span class="grade-badge" style="font-size:1.1rem">${angka}</span>`;
-    el.className = 'grade-display filled';
-  }
-}
-
-function onAngkaChange() {
-  const v = parseInt(document.getElementById('nilai-angka').value);
+function onAngkaInput() {
+  const v = parseInt(document.getElementById('angkaInput').value);
   if (!isNaN(v) && v >= 0 && v <= 100) {
-    const h = getHuruf(v);
-    if (h) {
-      setHurufDisplay(h, getColor(h));
-    } else {
-      setHurufDisplay('', '');
-    }
+    angka = v; huruf = a2h(v);
+    document.getElementById('hurufSelect').value = huruf;
   } else {
-    setHurufDisplay('', '');
+    angka = null; huruf = null;
+    document.getElementById('hurufSelect').value = '';
   }
+  updatePreview();
 }
 
 function onHurufChange() {
-  const h = document.getElementById('nilai-huruf-select').value;
+  const h = document.getElementById('hurufSelect').value;
   if (h) {
-    const a = HURUF_TO_ANGKA[h];
-    setAngkaDisplay(a !== undefined ? a : '—');
+    huruf = h; angka = h2a(h);
+    document.getElementById('angkaInput').value = angka;
   } else {
-    setAngkaDisplay('');
+    huruf = null; angka = null;
+    document.getElementById('angkaInput').value = '';
   }
+  updatePreview();
 }
 
-// ===== PHOTO =====
-function onPhotoChange() {
-  const file = document.getElementById('foto-input').files[0];
-  const area = document.getElementById('photo-upload-area');
-  const nameEl = document.getElementById('photo-name');
-  const previewEl = document.getElementById('photo-preview');
-  const imgEl = document.getElementById('preview-img');
-
-  if (file) {
-    area.classList.add('has-file');
-    nameEl.textContent = '✓ ' + file.name;
-    nameEl.style.display = 'block';
-    const reader = new FileReader();
-    reader.onload = e => {
-      imgEl.src = e.target.result;
-      previewEl.style.display = 'block';
-      pendingPhotoBase64 = e.target.result; // store for table preview
-    };
-    reader.readAsDataURL(file);
+/* ══ FILE UPLOAD ══ */
+function onFileChange(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const errEl = document.getElementById('fileErr');
+  const zone  = document.getElementById('uploadZone');
+  if (f.size > 1024 * 1024) {
+    errEl.style.display = 'block'; fotoB64 = null;
+    document.getElementById('prevImg').style.display = 'none';
+    document.getElementById('uploadPH').style.display = 'block';
+    zone.classList.remove('has-file'); return;
   }
-}
-
-// ===== SUBMIT =====
-let pendingEntry = null; // keeps last entry for retry
-
-function doSubmit() {
-  const bentuk = document.getElementById('bentuk-tugas').value;
-  if (!bentuk) { alert('Silakan pilih Bentuk Tugas terlebih dahulu.'); return; }
-
-  let nilaiAngka, nilaiHuruf;
-  if (inputMode === 'angka') {
-    const rawAngka = document.getElementById('nilai-angka').value;
-    nilaiAngka = parseInt(rawAngka);
-    if (isNaN(nilaiAngka) || nilaiAngka < 0 || nilaiAngka > 100) {
-      alert('Masukkan nilai angka yang valid (0–100).'); return;
-    }
-    nilaiHuruf = getHuruf(nilaiAngka);
-    if (!nilaiHuruf) { alert('Nilai angka tidak memiliki padanan huruf yang valid.'); return; }
-  } else {
-    nilaiHuruf = document.getElementById('nilai-huruf-select').value;
-    if (!nilaiHuruf) { alert('Silakan pilih nilai huruf.'); return; }
-    nilaiAngka = HURUF_TO_ANGKA[nilaiHuruf];
-  }
-
-  const fotoFile = document.getElementById('foto-input').files[0];
-  if (!fotoFile) { alert('Harap upload foto bukti terlebih dahulu.'); return; }
-
-  pendingEntry = {
-    nisn:       currentUser.nisn,
-    nama:       currentUser.nama,
-    kelas:      currentUser.kelas,
-    bentuk,
-    nilaiAngka,
-    nilaiHuruf,
-    fotoNama:   fotoFile.name,
-    fotoBase64: pendingPhotoBase64,
-    waktu:      new Date().toLocaleString('id-ID'),
+  errEl.style.display = 'none';
+  const r = new FileReader();
+  r.onload = ev => {
+    fotoB64 = ev.target.result;
+    const p = document.getElementById('prevImg');
+    p.src = fotoB64; p.style.display = 'block';
+    document.getElementById('uploadPH').style.display = 'none';
+    zone.classList.add('has-file');
   };
-
-  sendToSheets(pendingEntry);
+  r.readAsDataURL(f);
 }
 
-function retrySend() {
-  if (pendingEntry) sendToSheets(pendingEntry);
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) onFileChange({ target: { files: [f] } });
+});
+
+/* ══ SUBMIT ══ */
+async function doSubmit() {
+  const kelas = document.getElementById('kelasSelect').value;
+  const tugas = document.getElementById('tugasSelect').value;
+  const btn   = document.getElementById('btnSubmit');
+
+  if (!kelas || !tugas) { alert('Pilih kelas dan bentuk tugas terlebih dahulu.'); return; }
+  if (angka == null || !huruf) { alert('Isi nilai angka atau pilih nilai huruf terlebih dahulu.'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Mengirim…';
+
+  let sent = false, errMsg = '';
+
+  if (GAS_URL && GAS_URL.startsWith('https://script.google.com')) {
+    try {
+      const body = new URLSearchParams({
+        nisn: user.nisn, nama: user.name, kelas: user.kelas,
+        tugas, angka, huruf, foto: fotoB64 || ''
+      });
+      await fetch(GAS_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+      });
+      sent = true;
+    } catch (e) {
+      errMsg = 'Koneksi gagal: ' + e.message;
+    }
+  } else {
+    errMsg = '⚠ GAS_URL belum diisi — data tidak dikirim ke spreadsheet.';
+  }
+
+  // Show modal
+  document.getElementById('mN').textContent = user.name;
+  document.getElementById('mK').textContent = user.kelas;
+  document.getElementById('mT').textContent = tugas;
+  document.getElementById('mA').textContent = angka;
+  document.getElementById('mH').textContent = huruf;
+  document.getElementById('modalStatus').textContent = sent
+    ? '✅ Data berhasil dikirim ke Database.'
+    : errMsg;
+  const mi = document.getElementById('modalMip');
+  if (fotoB64) { mi.src = fotoB64; mi.style.display = 'block'; } else mi.style.display = 'none';
+  document.getElementById('modalBg').classList.add('show');
+  if (sent) {
+    // refresh history only when on history page
+    if (document.getElementById('historyScreen')?.classList.contains('active')) {
+      loadNilai();
+    }
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Kirim Nilai →';
 }
 
-async function sendToSheets(entry) {
-  showModal('loading');
+/* ══ LOAD RIWAYAT — ambil dari Apps Script (GET ?action=read&nisn=...) ══ */
+async function loadNilai() {
+  // only load when history screen is active
+  if (!document.getElementById('historyScreen')?.classList.contains('active')) return;
+  const tb = document.getElementById('nilaiBody');
+  const stats = document.getElementById('statsArea');
+  // reset stats
+  if (stats) {
+    stats.querySelector('#countVal').textContent = '0';
+    stats.querySelector('#avgVal').textContent   = '–';
+    stats.querySelector('#passCount').textContent = '0';
+    stats.querySelector('#failCount').textContent = '0';
+  }
+  tb.innerHTML = '<tr><td colspan="5" class="load-row"><span class="spin"></span>Memuat riwayat…</td></tr>';
 
-  // Validasi URL belum diisi
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'PASTE_URL_APPS_SCRIPT_DISINI') {
-    showModal('error', 'URL Apps Script belum diisi. Ikuti panduan setup terlebih dahulu.');
+  if (!GAS_URL || !GAS_URL.startsWith('https://script.google.com')) {
+    tb.innerHTML = '<tr><td colspan="5" class="no-data">⚠ GAS_URL belum diisi — riwayat tidak dapat dimuat.</td></tr>';
     return;
   }
 
   try {
-    // Kirim tanpa fotoBase64 ke sheets (hanya nama file)
-    const payload = {
-      nisn:       entry.nisn,
-      nama:       entry.nama,
-      kelas:      entry.kelas,
-      bentuk:     entry.bentuk,
-      nilaiAngka: entry.nilaiAngka,
-      nilaiHuruf: entry.nilaiHuruf,
-      fotoNama:   entry.fotoNama,
-      waktu:      entry.waktu,
-    };
+    const url = GAS_URL + '?action=read&nisn=' + encodeURIComponent(user.nisn) + '&cb=' + Date.now();
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
 
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method:  'POST',
-      mode:    'no-cors', // Apps Script tidak support CORS standar
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload),
-    });
+    if (json.status === 'error') throw new Error(json.message);
 
-    // no-cors: response selalu opaque, asumsikan sukses jika tidak throw
-    // Simpan ke lokal DB & render tabel
-    nilaiDB.push(entry);
-    renderTable();
+    const data = json.data || [];
+    if (!data.length) {
+      tb.innerHTML = '<tr><td colspan="5" class="no-data">Belum ada nilai tercatat untuk akun ini.</td></tr>';
+      return;
+    }
 
-    // Isi detail modal sukses
-    const detail = document.getElementById('modal-detail');
-    detail.innerHTML = `
-      <div class="row"><span>Nama</span><span>${entry.nama}</span></div>
-      <div class="row"><span>NISN</span><span>${entry.nisn}</span></div>
-      <div class="row"><span>Kelas</span><span>${entry.kelas}</span></div>
-      <div class="row"><span>Bentuk Tugas</span><span>${entry.bentuk}</span></div>
-      <div class="row"><span>Nilai Angka</span><span style="color:var(--green);font-weight:800">${entry.nilaiAngka}</span></div>
-      <div class="row"><span>Nilai Huruf</span><span style="color:var(--accent2);font-weight:800">${entry.nilaiHuruf}</span></div>
-      <div class="row"><span>Foto Bukti</span><span style="color:var(--green)">✓ ${entry.fotoNama}</span></div>
-      <div class="row"><span>Total Tersimpan</span><span style="color:var(--accent)">${nilaiDB.length} entri</span></div>
-    `;
-    showModal('success');
+    // hitung statistik dengan KKM variabel
+    if (stats) {
+      const nums = data.map(r => parseFloat(r.angka)).filter(n => !isNaN(n));
+      const count = nums.length;
+      const sum   = nums.reduce((a,b)=>a+b,0);
+      const avg   = count ? (sum/count) : 0;
+      // kelas X pakai 70, else 75
+      let kkm = 75;
+      if (user && typeof user.kelas === 'string' && user.kelas.trim().startsWith('X ')) kkm = 70;
+      const pass  = nums.filter(n=>n>=kkm).length;
+      const fail  = count - pass;
+      stats.querySelector('#countVal').textContent = count;
+      stats.querySelector('#avgVal').textContent   = count ? avg.toFixed(2) : '–';
+      stats.querySelector('#passCount').textContent = pass;
+      stats.querySelector('#failCount').textContent = fail;
+      stats.querySelector('#passLabel').textContent = `Tuntas (≥${kkm}):`;
+    }
 
-  } catch (err) {
-    showModal('error', err.message || 'Koneksi gagal. Periksa jaringan Anda.');
+    tb.innerHTML = data.map((r, i) => {
+      const foto = r.foto && r.foto.trim();
+      const fotoCell = foto
+        ? `<img class="thumb-img" src="${esc(foto)}" alt="bukti" onclick="openLb('${esc(foto)}')" loading="lazy">`
+        : '<span style="color:var(--slate-400)">—</span>';
+      return `<tr>
+        <td style="color:var(--slate-400);font-weight:600">${i+1}</td>
+        <td style="font-size:12px;font-weight:500">${esc(r.tugas||'—')}</td>
+        <td style="font-weight:800;color:var(--sky-deep);font-size:15px">${esc(r.angka||'—')}</td>
+        <td><span class="badge-huruf">${esc(r.huruf||'—')}</span></td>
+        <td>${fotoCell}</td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    tb.innerHTML = `<tr><td colspan="5" class="no-data" style="color:var(--red)">⚠ Gagal memuat: ${e.message}</td></tr>`;
   }
 }
 
-// ===== MODAL STATE =====
-function showModal(state, errMsg) {
-  document.getElementById('modal-overlay').style.display = 'flex';
-  document.getElementById('modal-loading').style.display = state === 'loading' ? 'block' : 'none';
-  document.getElementById('modal-success').style.display = state === 'success' ? 'block' : 'none';
-  document.getElementById('modal-error').style.display   = state === 'error'   ? 'block' : 'none';
-  if (state === 'error' && errMsg) {
-    document.getElementById('modal-error-msg').textContent = errMsg;
-  }
+/* ══ HELPERS ══ */
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ===== RENDER TABLE =====
-function renderTable() {
-  const tbody = document.getElementById('data-tbody');
-  const countEl = document.getElementById('data-count');
-  const dlBtn = document.getElementById('btn-download');
+/* ══ MODAL / LIGHTBOX ══ */
+function closeModal() { document.getElementById('modalBg').classList.remove('show'); resetForm(); }
+function openLb(src)  { document.getElementById('lbImg').src = src; document.getElementById('lightbox').classList.add('show'); }
+function closeLb()    { document.getElementById('lightbox').classList.remove('show'); }
 
-  countEl.textContent = nilaiDB.length;
-  dlBtn.disabled = nilaiDB.length === 0;
-
-  if (nilaiDB.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📭</div>Belum ada data yang diinput</div></td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = nilaiDB.map((e, i) => {
-    const hurufColor = getColor(e.nilaiHuruf);
-    const buktiCell = e.fotoBase64
-      ? `<img class="bukti-thumb" src="${e.fotoBase64}" alt="Bukti" title="${e.fotoNama}" onclick="window.open(this.src)">`
-      : `<span class="no-bukti">–</span>`;
-    return `
-      <tr>
-        <td style="color:var(--muted);font-size:0.75rem">${i + 1}</td>
-        <td style="font-family:monospace;font-size:0.78rem;color:var(--muted)">${e.nisn}</td>
-        <td style="font-weight:600;font-size:0.82rem">${e.nama}</td>
-        <td><span style="background:rgba(6,182,212,0.1);color:var(--accent2);border-radius:4px;padding:0.1rem 0.4rem;font-size:0.75rem;font-weight:600">${e.kelas}</span></td>
-        <td style="font-size:0.8rem;max-width:160px">${e.bentuk}</td>
-        <td style="font-weight:800;font-size:1rem;color:var(--green)">${e.nilaiAngka}</td>
-        <td><span style="background:${hurufColor}22;color:${hurufColor};border-radius:4px;padding:0.1rem 0.5rem;font-weight:800;font-size:0.9rem">${e.nilaiHuruf}</span></td>
-        <td>${buktiCell}</td>
-      </tr>
-    `;
-  }).join('');
-}
-
-// ===== DOWNLOAD EXCEL =====
-function downloadExcel() {
-  if (nilaiDB.length === 0) return;
-
-  const headers = ['NISN', 'NAMA', 'KELAS', 'BENTUK TUGAS', 'NILAI ANGKA', 'NILAI HURUF', 'BUKTI'];
-  const rows = nilaiDB.map(e => [
-    e.nisn,
-    e.nama,
-    e.kelas,
-    e.bentuk,
-    e.nilaiAngka,
-    e.nilaiHuruf,
-    e.fotoNama || '–',
-  ]);
-
-  const wsData = [headers, ...rows];
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // Column widths
-  ws['!cols'] = [
-    { wch: 15 }, // NISN
-    { wch: 36 }, // NAMA
-    { wch: 8  }, // KELAS
-    { wch: 44 }, // BENTUK TUGAS
-    { wch: 12 }, // NILAI ANGKA
-    { wch: 12 }, // NILAI HURUF
-    { wch: 30 }, // BUKTI
-  ];
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Nilai Geografi');
-
-  const now = new Date();
-  const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
-  XLSX.writeFile(wb, `Nilai_Geografi_${stamp}.xlsx`);
-}
-
-function closeModal() {
-  document.getElementById('modal-overlay').style.display = 'none';
-  resetForm();
-}
-
+/* ══ RESET ══ */
 function resetForm() {
-  document.getElementById('bentuk-tugas').value = '';
-  document.getElementById('nilai-angka').value = '';
-  setHurufDisplay('', '');
-  document.getElementById('nilai-huruf-select').value = '';
-  setAngkaDisplay('');
-  document.getElementById('foto-input').value = '';
-  document.getElementById('photo-upload-area').classList.remove('has-file');
-  document.getElementById('photo-name').style.display = 'none';
-  document.getElementById('photo-preview').style.display = 'none';
-  document.getElementById('preview-img').src = '';
-  pendingPhotoBase64 = null;
-  setMode('angka');
-  document.querySelector('.grade-row').style.display = 'grid';
+  document.getElementById('tugasSelect').value = '';
+  document.getElementById('angkaInput').value  = '';
+  document.getElementById('hurufSelect').value = '';
+  angka = null; huruf = null; fotoB64 = null;
+  updatePreview();
+  const p = document.getElementById('prevImg');
+  p.style.display = 'none'; p.src = '';
+  document.getElementById('uploadPH').style.display = 'block';
+  document.getElementById('uploadZone').classList.remove('has-file');
+  document.getElementById('fInput').value = '';
+  document.getElementById('fileErr').style.display = 'none';
 }
 
-// ===== INIT =====
-buildCriteria();
+function titleCase(s) { return s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()); }
 </script>
+
 </body>
 </html>
