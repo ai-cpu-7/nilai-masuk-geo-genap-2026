@@ -174,6 +174,10 @@ body {
   letter-spacing: 1px; text-transform: uppercase;
   color: var(--slate-500); margin-bottom: 7px;
 }
+.f-label.required::after {
+  content: ' *';
+  color: var(--red);
+}
 
 .f-input, .f-select {
   width: 100%; padding: 13px 16px;
@@ -529,7 +533,7 @@ tbody tr:hover td { background: var(--sky-ultra); }
       <input id="nisnInput" class="f-input" type="text" placeholder="Contoh: 0097758369" autocomplete="off" maxlength="20" inputmode="numeric">
       <p class="err-hint" id="nisnErr">NISN tidak ditemukan. Periksa kembali nomor NISN Anda.</p>
     </div>
-    <button class="btn-primary" onclick="doLogin()">Masuk ke Sistem →</button>
+    <button class="btn-primary" onclick="doLogin()">Masuk</button>
   </div>
 </div>
 
@@ -579,12 +583,13 @@ tbody tr:hover td { background: var(--sky-ultra); }
         </div>
       </div>
       <div class="f-group">
-        <label class="f-label">Bentuk Tugas</label>
+        <label class="f-label required">Bentuk Tugas</label>
         <div class="sel-wrap">
-          <select id="tugasSelect" class="f-select" disabled>
+          <select id="tugasSelect" class="f-select" disabled required>
             <option value="">— Pilih kelas terlebih dahulu —</option>
           </select>
         </div>
+        <p id="dupWarn" class="err-hint" style="display:none;">⚠ Nilai untuk tugas ini sudah ada; tidak bisa mengisi lagi.</p>
       </div>
     </div>
 
@@ -598,13 +603,13 @@ tbody tr:hover td { background: var(--sky-ultra); }
       <div class="grade-grid">
         <div>
           <div class="f-group">
-            <label class="f-label">Nilai Angka (0–100)</label>
-            <input id="angkaInput" class="f-input" type="number" min="0" max="100" placeholder="Contoh: 85" oninput="onAngkaInput()" inputmode="numeric">
+            <label class="f-label required">Nilai Angka (0–100)</label>
+            <input id="angkaInput" class="f-input" type="number" min="0" max="100" placeholder="Contoh: 85" oninput="onAngkaInput()" inputmode="numeric" required>
           </div>
           <div class="f-group">
-            <label class="f-label">Nilai Huruf</label>
+            <label class="f-label required">Nilai Huruf</label>
             <div class="sel-wrap">
-              <select id="hurufSelect" class="f-select" onchange="onHurufChange()">
+              <select id="hurufSelect" class="f-select" onchange="onHurufChange()" required>
                 <option value="">— Pilih nilai huruf —</option>
                 <option value="A++">A++ — 100</option>
                 <option value="A+">A+ — 98</option>
@@ -637,6 +642,7 @@ tbody tr:hover td { background: var(--sky-ultra); }
         <span>Foto Bukti</span>
         <div class="sec-line"></div>
       </div>
+      <p style="font-size:13px;color:var(--slate-500);margin-bottom:8px;">* Semua bidang harus diisi, sekali kirim tidak bisa diubah.</p>
       <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fInput').click()">
         <div id="uploadPH">
           <div class="upload-icon">📎</div>
@@ -958,6 +964,7 @@ const SCALE = [
 
 /* ══ STATE ══ */
 let user = null, angka = null, huruf = null, fotoB64 = null;
+let lastHistory = null; // cache of recent riwayat data
 
 /* ══ INIT ══ */
 (function init(){
@@ -1037,6 +1044,8 @@ function onKelasChange() {
   sel.innerHTML = '<option value="">— Pilih tugas —</option>';
   if (!k) { sel.disabled = true; return; }
   sel.disabled = false;
+  sel.removeEventListener('change', checkDuplicateTugas);
+  sel.addEventListener('change', checkDuplicateTugas);
   (TASKS[k] || []).forEach(t => {
     const o = document.createElement('option');
     o.value = t; o.textContent = t; sel.appendChild(o);
@@ -1117,6 +1126,24 @@ async function doSubmit() {
   if (!kelas || !tugas) { alert('Pilih kelas dan bentuk tugas terlebih dahulu.'); return; }
   if (angka == null || !huruf) { alert('Isi nilai angka atau pilih nilai huruf terlebih dahulu.'); return; }
 
+  // cek duplikasi di riwayat terlebih dahulu
+  if (GAS_URL && GAS_URL.startsWith('https://script.google.com')) {
+    try {
+      const url = GAS_URL + '?action=read&nisn=' + encodeURIComponent(user.nisn) + '&cb=' + Date.now();
+      const res = await fetch(url);
+      if (res.ok) {
+        const jr = await res.json();
+        const exists = (jr.data||[]).some(r => r.tugas === tugas);
+        if (exists) {
+          alert('Anda sudah mengirim nilai untuk tugas ini. Input hanya satu kali diperbolehkan.');
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('duplicate check failed', e);
+    }
+  }
+
   btn.disabled = true;
   btn.innerHTML = '<span class="spin"></span> Mengirim…';
 
@@ -1166,6 +1193,8 @@ async function doSubmit() {
 
 /* ══ LOAD RIWAYAT — ambil dari Apps Script (GET ?action=read&nisn=...) ══ */
 async function loadNilai() {
+  // also store last-loaded data for duplicate checks
+  let lastHistory = null;
   // only load when history screen is active
   if (!document.getElementById('historyScreen')?.classList.contains('active')) return;
   const tb = document.getElementById('nilaiBody');
@@ -1193,6 +1222,7 @@ async function loadNilai() {
     if (json.status === 'error') throw new Error(json.message);
 
     const data = json.data || [];
+    lastHistory = data;
     if (!data.length) {
       tb.innerHTML = '<tr><td colspan="5" class="no-data">Belum ada nilai tercatat untuk akun ini.</td></tr>';
       return;
@@ -1231,6 +1261,37 @@ async function loadNilai() {
     }).join('');
   } catch (e) {
     tb.innerHTML = `<tr><td colspan="5" class="no-data" style="color:var(--red)">⚠ Gagal memuat: ${e.message}</td></tr>`;
+  }
+}
+
+// check if selected tugas exists in lastHistory or fetch fresh
+async function checkDuplicateTugas() {
+  const sel = document.getElementById('tugasSelect');
+  const warn = document.getElementById('dupWarn');
+  const btn = document.getElementById('btnSubmit');
+  if (!sel || !btn) return;
+  const tugas = sel.value;
+  if (!tugas) { warn.style.display = 'none'; btn.disabled = false; return; }
+  let exists = false;
+  if (lastHistory) {
+    exists = lastHistory.some(r => r.tugas === tugas);
+  }
+  if (!exists && GAS_URL && GAS_URL.startsWith('https://script.google.com')) {
+    try {
+      const url = GAS_URL + '?action=read&nisn=' + encodeURIComponent(user.nisn) + '&cb=' + Date.now();
+      const res = await fetch(url);
+      if (res.ok) {
+        const jr = await res.json();
+        exists = (jr.data||[]).some(r => r.tugas === tugas);
+      }
+    } catch {}
+  }
+  if (exists) {
+    warn.style.display = 'block';
+    btn.disabled = true;
+  } else {
+    warn.style.display = 'none';
+    btn.disabled = false;
   }
 }
 
