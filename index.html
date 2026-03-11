@@ -1136,6 +1136,32 @@ function onHurufChange() {
 }
 
 /* ══ FILE UPLOAD ══ */
+// helper to resize/compress image dataURLs before sending
+async function compressImage(dataUrl, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width;
+      let h = img.height;
+      // scale down if larger than constraints
+      if (w > maxWidth || h > maxHeight) {
+        const ratio = Math.min(maxWidth / w, maxHeight / h);
+        w = w * ratio;
+        h = h * ratio;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      // output as jpeg with given quality to shrink data size
+      const newDataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve(newDataUrl);
+    };
+    img.src = dataUrl;
+  });
+}
+
 function onFileChange(e) {
   const photoReq = document.getElementById('photoReq');
   if (photoReq) photoReq.style.display = 'none';
@@ -1151,8 +1177,16 @@ function onFileChange(e) {
   }
   errEl.style.display = 'none';
   const r = new FileReader();
-  r.onload = ev => {
-    fotoB64 = ev.target.result;
+  r.onload = async ev => {
+    // raw image data
+    let b64 = ev.target.result;
+    // compress/resize before storing and sending to spreadsheet
+    try {
+      b64 = await compressImage(b64);
+    } catch (err) {
+      console.warn('compression failed', err);
+    }
+    fotoB64 = b64;
     const p = document.getElementById('prevImg');
     p.src = fotoB64; p.style.display = 'block';
     document.getElementById('uploadPH').style.display = 'none';
@@ -1210,9 +1244,30 @@ async function doSubmit() {
 
   if (GAS_URL && GAS_URL.startsWith('https://script.google.com')) {
     try {
+      // helper: hash a string and return first 25 hex characters
+      async function shortHash(input) {
+        try {
+          const enc = new TextEncoder();
+          const data = enc.encode(input);
+          const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+          const hex = Array.from(new Uint8Array(hashBuffer))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+          return hex.slice(0, 25);
+        } catch (e) {
+          console.warn('hash failed', e);
+          // fallback: just take first 25 chars of the string if crypto not available
+          return input.slice(0, 25);
+        }
+      }
+
+      // remove the data URL prefix to avoid sending unnecessary metadata
+      const fotoPayload = (fotoB64 || '').replace(/^data:image\/[a-zA-Z]+;base64,/, '');
+      // shrink to fixed-length fingerprint for spreadsheet
+      const fotoKey = fotoPayload ? await shortHash(fotoPayload) : '';
       const body = new URLSearchParams({
         nisn: user.nisn, nama: user.name, kelas: user.kelas,
-        tugas, angka, huruf, foto: fotoB64 || ''
+        tugas, angka, huruf, foto: fotoKey
       });
       await fetch(GAS_URL, {
         method: 'POST', mode: 'no-cors',
