@@ -639,7 +639,7 @@ tbody tr:hover td { background: var(--sky-ultra); }
     <div class="sec-card">
       <div class="sec-title">
         <div class="sec-icon">📸</div>
-        <span>Foto Bukti</span>
+        <span>Foto Bukti <span style="color:var(--red)">*</span></span>
         <div class="sec-line"></div>
       </div>
       <p style="font-size:13px;color:var(--slate-500);margin-bottom:8px;">* Semua bidang harus diisi, sekali kirim tidak bisa diubah.</p>
@@ -652,6 +652,7 @@ tbody tr:hover td { background: var(--sky-ultra); }
         <img id="prevImg" class="prev-img" alt="Preview">
       </div>
       <p class="file-err" id="fileErr">❌ Ukuran file melebihi 1 MB. Pilih file yang lebih kecil.</p>
+      <p class="err-hint" id="photoReq" style="display:none;">⚠ Foto bukti wajib diunggah.</p>
       <input type="file" id="fInput" accept="image/*" onchange="onFileChange(event)">
     </div>
 
@@ -1087,11 +1088,14 @@ function onHurufChange() {
 
 /* ══ FILE UPLOAD ══ */
 function onFileChange(e) {
+  const photoReq = document.getElementById('photoReq');
+  if (photoReq) photoReq.style.display = 'none';
   const f = e.target.files[0]; if (!f) return;
   const errEl = document.getElementById('fileErr');
   const zone  = document.getElementById('uploadZone');
   if (f.size > 1024 * 1024) {
     errEl.style.display = 'block'; fotoB64 = null;
+    if (photoReq) photoReq.style.display = 'block';
     document.getElementById('prevImg').style.display = 'none';
     document.getElementById('uploadPH').style.display = 'block';
     zone.classList.remove('has-file'); return;
@@ -1125,6 +1129,12 @@ async function doSubmit() {
 
   if (!kelas || !tugas) { alert('Pilih kelas dan bentuk tugas terlebih dahulu.'); return; }
   if (angka == null || !huruf) { alert('Isi nilai angka atau pilih nilai huruf terlebih dahulu.'); return; }
+  if (!fotoB64) {
+    const photoReq = document.getElementById('photoReq');
+    if (photoReq) photoReq.style.display = 'block';
+    alert('Unggah foto bukti terlebih dahulu.');
+    return;
+  }
 
   // cek duplikasi di riwayat terlebih dahulu
   if (GAS_URL && GAS_URL.startsWith('https://script.google.com')) {
