@@ -283,6 +283,7 @@ body {
 .hdr-user { text-align: right; }
 .hdr-name { font-size: 13px; font-weight: 700; color: var(--slate-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
 .hdr-kelas { font-size: 11px; color: var(--sky-deep); font-weight: 600; }
+.hdr-nisn { font-size: 11px; color: var(--slate-500); font-weight: 500; }
 
 .btn-logout {
   padding: 8px 16px; border-radius: 8px;
@@ -314,7 +315,42 @@ body {
 }
 
 /* statistik di halaman riwayat */
-.stats p { margin: 4px 0; font-size: 14px; }
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: flex-start;
+}
+.stats-metrics { flex: 1; }
+.stats-identity {
+  /* right column should push content to the right */
+  min-width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.stats p {
+  margin: 8px 0; font-size: 14px;
+  display: flex; align-items: center;
+  color: black; /* default text color for stats and identity */
+}
+.stats-metrics p { justify-content: flex-start; }
+.stats-identity p { justify-content: flex-end; }
+.stats p .label {
+  display: inline-block;
+  min-width: 120px;
+  text-align: left;
+  margin-left: 4px;
+  font-weight: 600;
+  color: black; /* label text remains black */
+}
+.stats p .colon {
+  margin: 0 6px 0 4px; /* default gap after colon */
+  color: black;
+}
+.stats-identity .colon {
+  margin: 0 4px; /* one-space gap for identity rows */
+}
 .stats span { font-weight: 600; color: var(--sky-deep); }
 
 /* ─────────────────────────────────────────────
@@ -554,6 +590,7 @@ tbody tr:hover td { background: var(--sky-ultra); }
       <div class="hdr-user">
         <div class="hdr-name" id="hdrName">—</div>
         <div class="hdr-kelas" id="hdrKelas">—</div>
+        <div class="hdr-nisn" id="hdrNisn">—</div>
       </div>
       <button class="btn-logout" onclick="doLogout()">Keluar</button>
     </div>
@@ -700,10 +737,16 @@ tbody tr:hover td { background: var(--sky-ultra); }
       </div>
       <!-- statistik ringkas -->
       <div id="statsArea" class="stats">
-        <p>Jumlah nilai: <span id="countVal">0</span></p>
-        <p>Rata-rata: <span id="avgVal">–</span></p>
-        <p><span id="passLabel">Tuntas (≥70):</span> <span id="passCount">0</span></p>
-        <p>Tidak tuntas: <span id="failCount">0</span></p>
+        <div class="stats-metrics">
+          <p><span class="label">Jumlah nilai</span><span class="colon">:</span><span id="countVal">0</span></p>
+          <p><span class="label">Rata-rata</span><span class="colon">:</span><span id="avgVal">–</span></p>
+          <p><span class="label" id="passLabel">Tuntas (≥70)</span><span class="colon">:</span><span id="passCount">0</span></p>
+          <p><span class="label">Tidak tuntas</span><span class="colon">:</span><span id="failCount">0</span></p>
+        </div>
+        <div class="stats-identity">
+          <p><span><span id="statName">—</span></p>
+          <p><span><span id="statNisn">—</span></p>
+        </div>
       </div>
       <div class="table-wrap">
         <table>
@@ -866,8 +909,8 @@ const STUDENTS = {
   "0093051480": { name:"VANESA QOTRUN NADA",                    kelas:"X 3" },
   "0108496095": { name:"YASMINE FITRIA AZZAHRA",                    kelas:"X 3" },
   "0099029847": { name:"AHMAD ARGA FAIRUS",                    kelas:"X 4" },
-  "0091307556": { name:"ALANA TSAMARA IWAN",                    kelas:"X 4" },
-  "0093712556": { name:"ALIF RASYDAN ATHALLAH",                    kelas:"X 4" },
+  "0093712556": { name:"ALANA TSAMARA IWAN",                    kelas:"X 4" },
+  "0091307556": { name:"ALIF RASYDAN ATHALLAH",                    kelas:"X 4" },
   "0109922111": { name:"ALYA GENDISPUTRI DESTIAN",                    kelas:"X 4" },
   "0095481451": { name:"ANDIRA AURELYA",                    kelas:"X 4" },
   "0091607323": { name:"ANNISA NURDIYANTI",                    kelas:"X 4" },
@@ -1008,6 +1051,7 @@ function showApp() {
   document.getElementById('appScreen').classList.add('active');
   document.getElementById('hdrName').textContent = user.name;
   document.getElementById('hdrKelas').textContent = 'Kelas ' + user.kelas;
+  document.getElementById('hdrNisn').textContent = 'NISN ' + user.nisn;
   document.getElementById('pageSub').textContent = 'Halo, ' + titleCase(user.name) + ' — silakan isi nilai tugasmu.';
   const kk = user.kelas === 'X' ? 'XI' : 'XII';
   document.getElementById('kelasSelect').value = kk;
@@ -1036,6 +1080,10 @@ function doLogout() {
   document.getElementById('nisnInput').value = '';
   document.getElementById('nisnInput').classList.remove('err');
   document.getElementById('nisnErr').classList.remove('show');
+  // clear header info
+  document.getElementById('hdrName').textContent = '—';
+  document.getElementById('hdrKelas').textContent = '—';
+  document.getElementById('hdrNisn').textContent = '—';
   resetForm();
 }
 
@@ -1210,8 +1258,10 @@ async function loadNilai() {
   if (!document.getElementById('historyScreen')?.classList.contains('active')) return;
   const tb = document.getElementById('nilaiBody');
   const stats = document.getElementById('statsArea');
-  // reset stats
+  // reset stats and always show student identity
   if (stats) {
+    stats.querySelector('#statName').textContent = user ? user.name : '—';
+    stats.querySelector('#statNisn').textContent = user ? user.nisn : '—';
     stats.querySelector('#countVal').textContent = '0';
     stats.querySelector('#avgVal').textContent   = '–';
     stats.querySelector('#passCount').textContent = '0';
@@ -1254,7 +1304,7 @@ async function loadNilai() {
       stats.querySelector('#avgVal').textContent   = count ? avg.toFixed(2) : '–';
       stats.querySelector('#passCount').textContent = pass;
       stats.querySelector('#failCount').textContent = fail;
-      stats.querySelector('#passLabel').textContent = `Tuntas (≥${kkm}):`;
+      stats.querySelector('#passLabel').textContent = `Tuntas (≥${kkm})`;
     }
 
     tb.innerHTML = data.map((r, i) => {
@@ -1263,7 +1313,7 @@ async function loadNilai() {
         ? `<img class="thumb-img" src="${esc(foto)}" alt="bukti" onclick="openLb('${esc(foto)}')" loading="lazy">`
         : '<span style="color:var(--slate-400)">—</span>';
       return `<tr>
-        <td style="color:var(--slate-400);font-weight:600">${i+1}</td>
+        <td style="color:black;font-weight:600">${i+1}</td>
         <td style="font-size:12px;font-weight:500">${esc(r.tugas||'—')}</td>
         <td style="font-weight:800;color:var(--sky-deep);font-size:15px">${esc(r.angka||'—')}</td>
         <td><span class="badge-huruf">${esc(r.huruf||'—')}</span></td>
