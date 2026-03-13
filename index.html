@@ -541,6 +541,28 @@ tbody tr:hover td { background: var(--sky-ultra); }
 .lb-close { position: absolute; top: 20px; right: 24px; font-size: 34px; color: white; cursor: pointer; font-weight: 300; line-height: 1; }
 
 /* ─────────────────────────────────────────────
+   LOADING OVERLAY
+───────────────────────────────────────────── */
+.loading-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(15,23,42,.6); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .3s;
+}
+.loading-overlay.show {
+  display: flex; opacity: 1;
+}
+.loading-spinner {
+  width: 60px; height: 60px;
+  border: 4px solid rgba(255,255,255,.3);
+  border-top-color: var(--white);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+
+/* ─────────────────────────────────────────────
    RESPONSIVE
 ───────────────────────────────────────────── */
 @media (max-width: 640px) {
@@ -807,6 +829,11 @@ tbody tr:hover td { background: var(--sky-ultra); }
 <div class="lightbox" id="lightbox" onclick="closeLb()">
   <div class="lb-close">×</div>
   <img id="lbImg" src="" alt="">
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
 </div>
 
 <!-- ═══════════════════════════════════════════
@@ -1254,6 +1281,8 @@ async function doSubmit() {
 
   btn.disabled = true;
   btn.innerHTML = '<span class="spin"></span> Mengirim<span class="dotText"></span>';
+  // show loading overlay
+  document.getElementById('loadingOverlay').classList.add('show');
   // animated dots during submit
   let dotCount = 0;
   const dotEl = btn.querySelector('.dotText');
@@ -1324,6 +1353,8 @@ async function doSubmit() {
     }
   }
 
+  // hide loading overlay
+  document.getElementById('loadingOverlay').classList.remove('show');
   clearInterval(dotInterval);
   btn.disabled = false;
   btn.innerHTML = 'Kirim Nilai →';
