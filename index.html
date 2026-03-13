@@ -489,12 +489,26 @@ tbody tr:hover td { background: var(--sky-ultra); }
 }
 .modal-bg.show { opacity: 1; pointer-events: all; }
 .modal-box {
+  position: relative;
   background: var(--white); border-radius: 24px;
   padding: 44px 36px; max-width: 480px; width: 100%; text-align: center;
   transform: scale(.93) translateY(16px); transition: transform .3s;
   box-shadow: 0 32px 80px rgba(0,0,0,.2);
   max-height: 90vh; overflow-y: auto;
   border: 1px solid var(--slate-100);
+}
+
+.modal-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; border-radius: 14px;
+  background: rgba(15,23,42,.12);
+  color: var(--slate-900); font-size: 20px; cursor: pointer;
+  transition: background .2s;
+}
+.modal-close:hover {
+  background: rgba(15,23,42,.2);
 }
 .modal-bg.show .modal-box { transform: scale(1) translateY(0); }
 .modal-box::before {
@@ -773,6 +787,7 @@ tbody tr:hover td { background: var(--sky-ultra); }
 ════════════════════════════════════════════ -->
 <div class="modal-bg" id="modalBg">
   <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()" aria-label="Tutup">×</button>
     <div class="modal-check">✓</div>
     <h2 class="modal-title">Nilai Terkirim!</h2>
     <p class="modal-sub" id="modalStatus">Data berhasil dikirim ke Pak Imron...</p>
@@ -964,8 +979,8 @@ const STUDENTS = {
   "0091934350": { name:"MUHAMMAD SAKHIY EL AZZAM",                    kelas:"X 5" },
   "0107831153": { name:"NABILA MAHARANI",                    kelas:"X 5" },
   "0105870031": { name:"NADHIRAH AHWANDJI",                    kelas:"X 5" },
-  "0096891264": { name:"NAZWA AULIA",                    kelas:"X 5" },
-  "0098733440": { name:"NURSUTA MUSTAQIM",                    kelas:"X 5" },
+  "0098733440": { name:"NAZWA AULIA",                    kelas:"X 5" },
+  "0096891264": { name:"NURSUTA MUSTAQIM",                    kelas:"X 5" },
   "0099869188": { name:"PRITALINCH OCTAVIANI",                    kelas:"X 5" },
   "0101485234": { name:"QUINSHA AULIA RAHMANITA",                    kelas:"X 5" },
   "0096360292": { name:"RAMA PAGI RAMADHAN",                    kelas:"X 5" },
@@ -1137,7 +1152,7 @@ function onHurufChange() {
 
 /* ══ FILE UPLOAD ══ */
 // helper to resize/compress image dataURLs before sending
-async function compressImage(dataUrl, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+async function compressImage(dataUrl, maxWidth = 600, maxHeight = 600, quality = 0.5) {
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
@@ -1238,7 +1253,15 @@ async function doSubmit() {
   }
 
   btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span> Mengirim…';
+  btn.innerHTML = '<span class="spin"></span> Mengirim<span class="dotText"></span>';
+  // animated dots during submit
+  let dotCount = 0;
+  const dotEl = btn.querySelector('.dotText');
+  const dotInterval = setInterval(() => {
+    if (!dotEl) return;
+    dotCount = (dotCount + 1) % 4;
+    dotEl.textContent = '.'.repeat(dotCount);
+  }, 450);
 
   let sent = false, errMsg = '';
 
@@ -1263,14 +1286,14 @@ async function doSubmit() {
 
       // remove the data URL prefix to avoid sending unnecessary metadata
       const fotoPayload = (fotoB64 || '').replace(/^data:image\/[a-zA-Z]+;base64,/, '');
-      // shrink to fixed-length fingerprint for spreadsheet
-      const fotoKey = fotoPayload ? await shortHash(fotoPayload) : '';
+      // shrink to fixed-length fingerprint for spreadsheet (use simple slice for speed)
+      const fotoKey = fotoPayload ? fotoPayload.slice(0, 25) : '';
       const body = new URLSearchParams({
         nisn: user.nisn, nama: user.name, kelas: user.kelas,
         tugas, angka, huruf, foto: fotoKey
       });
       await fetch(GAS_URL, {
-        method: 'POST', mode: 'no-cors',
+        method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: body.toString()
       });
@@ -1301,6 +1324,7 @@ async function doSubmit() {
     }
   }
 
+  clearInterval(dotInterval);
   btn.disabled = false;
   btn.innerHTML = 'Kirim Nilai →';
 }
